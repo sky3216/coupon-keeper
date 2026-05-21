@@ -1,3 +1,18 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: Phase 1 — App Foundation and Local Pass Model
+status: unknown
+last_updated: "2026-05-21T13:01:51.071Z"
+progress:
+  total_phases: 7
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+---
+
 # State: Coupon Keeper
 
 **Initialized:** 2026-05-21
