@@ -48,6 +48,8 @@
 
 사용자가 명시적으로 GSD 우회를 요청하지 않는 한, Coupon Keeper 구현 작업은 `.planning/ROADMAP.md`의 phase 순서를 기준으로 진행한다.
 
+모든 작업은 시작 전에 작업 전용 브랜치를 만든 뒤 진행한다. 작업이 끝나면 관련 파일만 명시적으로 커밋하고, 커밋 후에는 해당 브랜치를 원격 저장소에 push 완료한다.
+
 ## Planned App Structure
 
 ```text
