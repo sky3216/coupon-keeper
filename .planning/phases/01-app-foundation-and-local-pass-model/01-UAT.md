@@ -6,7 +6,7 @@ source:
   - 01-02-SUMMARY.md
   - 01-03-SUMMARY.md
 started: 2026-05-22T13:20:05Z
-updated: 2026-05-22T13:32:20Z
+updated: 2026-05-22T14:02:44Z
 ---
 
 ## Current Test
@@ -63,15 +63,13 @@ blocked: 3
   reason: "User reported: 앱이 열리지 않았고 시뮬레이터만 열렸어"
   severity: blocker
   test: 1
-  root_cause: "Manual diagnosis reproduced the failure with `flutter run -d B8EFEC07-DC10-4C70-A210-94D66F030633`: Xcode build completes, then iOS launch fails with `Failed to launch AssetCatalogSimulatorAgent via CoreSimulator spawn` for `ios/Runner/Assets.xcassets`. `flutter doctor -v` reports Xcode installed, but Flutter/Dart are not on PATH. Android manual run is also blocked because the Android toolchain is missing cmdline-tools and license acceptance, and the launched emulator does not appear in `flutter devices --device-timeout 20`. Automated widget tests still pass, so the gap is currently a local simulator/toolchain launch blocker rather than a proven app-shell code defect."
+  root_cause: "Manual diagnosis reproduced the iOS failure with `flutter run -d B8EFEC07-DC10-4C70-A210-94D66F030633`: Xcode build completes, then iOS launch fails with `Failed to launch AssetCatalogSimulatorAgent via CoreSimulator spawn` for `ios/Runner/Assets.xcassets`. System logs show AMFI rejecting `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Xcode/Overlays/AssetCatalogSimulatorAgent` with `disallowed without library validation` and `code signature validation failed fatally`, so this is a local Xcode/CoreSimulator toolchain blocker rather than a proven app-shell code defect. Android toolchain blockers were remediated on 2026-05-22 by installing cmdline-tools, accepting SDK licenses, installing Android SDK 36/build tools, adding Flutter/sdkmanager to `.zshrc`, launching `Pixel_8_API_33`, and successfully running the app on `emulator-5554`; visual UAT still needs to be repeated once a stable manual inspection session is available."
   artifacts:
     - path: "ios/Runner/Assets.xcassets"
-      issue: "Xcode/CoreSimulator fails while processing asset catalogs for simulator launch."
+      issue: "Xcode/CoreSimulator fails while launching AssetCatalogSimulatorAgent; AMFI rejects the tool binary during code signature validation."
     - path: "android/"
-      issue: "Android manual launch is blocked by missing SDK cmdline-tools/licenses and emulator visibility."
+      issue: "Android environment was repaired and app launch on `emulator-5554` succeeded, but manual visual UAT has not been rerun yet."
   missing:
-    - "Add Flutter to PATH or use the local Flutter binary consistently."
-    - "Repair Xcode/CoreSimulator asset catalog tooling or simulator runtime so `flutter run` can launch on iOS."
-    - "Install Android SDK cmdline-tools, accept Android licenses, and confirm an Android emulator appears in `flutter devices`."
+    - "Update or reinstall Xcode/CoreSimulator so `AssetCatalogSimulatorAgent` passes AMFI/library validation and iOS `flutter run` can launch."
     - "Re-run `$gsd-verify-work 1` after local launch works."
   debug_session: "manual-diagnosis-2026-05-22"

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 — App Foundation and Local Pass Model
-status: unknown
-last_updated: "2026-05-22T13:13:27.460Z"
+status: phase-1-uat-partial
+last_updated: "2026-05-22T14:02:44Z"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -26,13 +26,13 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Verify Phase 1 execution, then continue to guided scan intake.
+**Current focus:** Clear the iOS simulator launch blocker, then rerun Phase 1 UAT before continuing to guided scan intake.
 
 ## Phase Status
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 1. App Foundation and Local Pass Model | Complete | 100% |
+| 1. App Foundation and Local Pass Model | UAT Partial | 100% implementation, 2/6 UAT checks passed |
 | 2. Guided Scan Intake | Pending | 0% |
 | 3. OCR Candidate Review and Discovery Report | Pending | 0% |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
@@ -50,6 +50,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 - Free tier includes D-7 and D-Day reminders.
 - Pro gate is contextual, not first-launch.
 
+## Environment Notes
+
+- Android toolchain blocker was remediated on 2026-05-22: cmdline-tools installed, SDK licenses accepted, Android SDK 36/build tools available, Flutter/sdkmanager PATH added to `/Users/sora/.zshrc`, and Coupon Keeper launched successfully on `emulator-5554`.
+- iOS simulator launch remains blocked outside app code: Xcode/CoreSimulator fails to spawn `AssetCatalogSimulatorAgent`, and system logs show AMFI library validation/code signature rejection for the Xcode tool binary.
+
 ## Next Command
 
-`$gsd-verify-work 1`
+Fix or update Xcode/CoreSimulator, then run `$gsd-verify-work 1` again.
