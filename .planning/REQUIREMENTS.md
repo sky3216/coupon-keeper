@@ -7,16 +7,16 @@
 
 ### App Shell
 
-- [ ] **SHELL-01**: User can launch the Flutter app on iOS and Android.
-- [ ] **SHELL-02**: User can navigate between Today, Wallet, and Scan using bottom tabs.
-- [ ] **SHELL-03**: User sees first-run empty states that point to guided scan.
-- [ ] **SHELL-04**: User can use primary actions with one hand on small mobile screens.
+- [x] **SHELL-01**: User can launch the Flutter app on iOS and Android.
+- [x] **SHELL-02**: User can navigate between Today, Wallet, and Scan using bottom tabs.
+- [x] **SHELL-03**: User sees first-run empty states that point to guided scan.
+- [x] **SHELL-04**: User can use primary actions with one hand on small mobile screens.
 
 ### Pass Storage
 
-- [ ] **PASS-01**: User can store a pass with type, title, brand, estimated value, expiry, status, source metadata, image copy path, OCR text, and confidence.
-- [ ] **PASS-02**: User can keep viewing a saved pass after the source photo or file is unavailable, using the app-internal image copy.
-- [ ] **PASS-03**: User can see active, used, expired, and cleanup-candidate pass states.
+- [x] **PASS-01**: User can store a pass with type, title, brand, estimated value, expiry, status, source metadata, image copy path, OCR text, and confidence.
+- [x] **PASS-02**: User can keep viewing a saved pass after the source photo or file is unavailable, using the app-internal image copy.
+- [x] **PASS-03**: User can see active, used, expired, and cleanup-candidate pass states.
 
 ### Guided Scan
 
@@ -111,13 +111,13 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SHELL-01 | Phase 1 | Pending |
-| SHELL-02 | Phase 1 | Pending |
-| SHELL-03 | Phase 1 | Pending |
-| SHELL-04 | Phase 1 | Pending |
-| PASS-01 | Phase 1 | Pending |
-| PASS-02 | Phase 1 | Pending |
-| PASS-03 | Phase 1 | Pending |
+| SHELL-01 | Phase 1 | Complete |
+| SHELL-02 | Phase 1 | Complete |
+| SHELL-03 | Phase 1 | Complete |
+| SHELL-04 | Phase 1 | Complete |
+| PASS-01 | Phase 1 | Complete |
+| PASS-02 | Phase 1 | Complete |
+| PASS-03 | Phase 1 | Complete |
 | SCAN-01 | Phase 2 | Pending |
 | SCAN-02 | Phase 2 | Pending |
 | SCAN-03 | Phase 2 | Pending |
