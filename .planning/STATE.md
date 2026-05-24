@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 1 — App Foundation and Local Pass Model
 status: phase-1-uat-pass-with-ios-env-followup
-last_updated: "2026-05-24T02:10:00Z"
+last_updated: "2026-05-24T02:17:50.647Z"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -26,14 +26,14 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Proceed to Phase 2 guided scan intake while tracking the remaining iOS simulator/Xcode environment blocker separately.
+**Current focus:** Plan Phase 2 guided scan intake using the captured context, while tracking the remaining iOS simulator/Xcode environment blocker separately.
 
 ## Phase Status
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
-| 2. Guided Scan Intake | Pending | 0% |
+| 2. Guided Scan Intake | Context Ready | Ready for planning |
 | 3. OCR Candidate Review and Discovery Report | Pending | 0% |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
@@ -57,4 +57,8 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Start Phase 2 with `$gsd-discuss-phase 2` or `$gsd-plan-phase 2`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-plan-phase 2`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+
+## Decisions
+
+- [Phase 2]: Phase 2 guided scan context captured with agent-selected defaults — User chose Agent가 결정; decisions are recorded in .planning/phases/02-guided-scan-intake/02-CONTEXT.md
