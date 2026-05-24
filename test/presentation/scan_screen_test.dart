@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coupon_keeper/application/guided_scan_controller.dart';
 import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/domain/scan_item.dart';
@@ -34,6 +36,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(picker.requestedSources, [ScanSourceType.photos]);
+  });
+
+  testWidgets('progress view shows counts, duplicate summary, and cancels', (
+    tester,
+  ) async {
+    final duplicate = _item('duplicate');
+    final fresh = _item('fresh');
+    final cache = InMemoryScanFingerprintCache();
+    await cache.markSeen(duplicate);
+    final gate = Completer<void>();
+    final controller = GuidedScanController(
+      picker: FakeScanSourcePicker.downloads([duplicate, fresh]),
+      fingerprintCache: cache,
+      processItem: (_) => gate.future,
+    );
+    await tester.pumpWidget(_scanScreen(controller));
+
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pump();
+
+    expect(find.text('선택한 항목을 확인하고 있어요'), findsOneWidget);
+    expect(find.text('0/2 처리 중'), findsOneWidget);
+    expect(find.text('후보 확인 준비 중'), findsOneWidget);
+    expect(find.text('이미 확인한 항목 1개는 건너뛰었어요'), findsOneWidget);
+    expect(find.text('취소'), findsOneWidget);
+    expect(find.textContaining('후보 1개'), findsNothing);
+
+    await tester.tap(find.text('취소'));
+    gate.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.text('스캔을 멈췄어요'), findsOneWidget);
+    expect(find.text('다시 선택'), findsOneWidget);
+    expect(find.text('Scan 처음으로'), findsOneWidget);
   });
 }
 

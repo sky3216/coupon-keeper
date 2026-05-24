@@ -6,6 +6,8 @@ import '../../domain/scan_progress.dart';
 import '../../domain/scan_source.dart';
 import '../../platform/fake_scan_source_picker.dart';
 import '../theme/app_theme.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/scan_progress_summary.dart';
 import '../widgets/scan_source_choice.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -55,7 +57,19 @@ class _ScanScreenState extends State<ScanScreen> {
       case GuidedScanStatus.selecting:
         return _ScanStart(onSourceSelected: _controller.start);
       case GuidedScanStatus.running:
+        return _ScanRunning(state: _state, onCancel: _controller.cancel);
       case GuidedScanStatus.cancelled:
+        return EmptyState(
+          icon: Icons.pause_circle_outline,
+          heading: '스캔을 멈췄어요',
+          body: _state.processedCount > 0
+              ? '${_state.processedCount}개 항목은 확인했어요. 남은 항목은 확인하지 않았습니다. 다시 선택해서 이어갈 수 있어요.'
+              : '남은 항목은 확인하지 않았습니다. 다시 선택해서 이어갈 수 있어요.',
+          primaryActionLabel: '다시 선택',
+          onPrimaryAction: _controller.reset,
+          secondaryActionLabel: 'Scan 처음으로',
+          onSecondaryAction: _controller.reset,
+        );
       case GuidedScanStatus.empty:
       case GuidedScanStatus.accessDenied:
       case GuidedScanStatus.fileUnavailable:
@@ -64,6 +78,48 @@ class _ScanScreenState extends State<ScanScreen> {
       case GuidedScanStatus.completed:
         return _ScanStart(onSourceSelected: _controller.start);
     }
+  }
+}
+
+class _ScanRunning extends StatelessWidget {
+  const _ScanRunning({required this.state, required this.onCancel});
+
+  final GuidedScanState state;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(
+            Icons.hourglass_top,
+            size: 40,
+            color: AppTheme.accent,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            '선택한 항목을 확인하고 있어요',
+            textAlign: TextAlign.center,
+            style: textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '선택한 항목만 기기 안에서 확인합니다.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 24),
+          ScanProgressSummary(state: state),
+          const SizedBox(height: 24),
+          TextButton(onPressed: onCancel, child: const Text('취소')),
+        ],
+      ),
+    );
   }
 }
 
