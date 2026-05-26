@@ -3,11 +3,11 @@ phase: 2-guided-scan-intake
 status: implementation-complete
 completed: 2026-05-26
 requirements-completed: [SCAN-01, SCAN-02, SCAN-03, SCAN-04]
-plans-completed: ["02-01", "02-02", "02-03"]
+plans-completed: ["02-01", "02-02", "02-03", "02-04"]
 verification:
   flutter_analyze: passed
-  flutter_test: "35 passed"
-  android_smoke: skipped-no-booted-device
+  flutter_test: "36 passed"
+  android_smoke: launched-on-emulator-5554-after-gap-closure
   ios_smoke: skipped-known-environment-blocker
 ---
 
@@ -23,6 +23,13 @@ verification:
 - Scan UI shows progress count, candidate placeholder, duplicate skip summary, cancel state, empty result, access/file/processing errors, partial summary, and Phase 3 completion shell.
 - App-level tests cover Today-to-Scan flow, fake picker selection, completion, repeated duplicate selection, and privacy/scope regression guards.
 
+## Gap Closure
+
+- UAT Test 3 found that the real default app path jumped from source selection directly to the empty state.
+- `02-04` added a default Phase 2 demo picker and an observable process delay so the progress shell appears before completion.
+- Repeated manual UAT now gets a fresh demo source token each time, so it does not immediately complete as duplicate-only.
+- A default `CouponKeeperApp()` widget regression test now covers Today-to-Scan source selection and verifies progress copy before completion.
+
 ## Requirement Evidence
 
 | Requirement | Evidence |
@@ -35,13 +42,13 @@ verification:
 ## Verification
 
 - `flutter analyze` - no issues found.
-- `flutter test` - 35 tests passed.
-- Android smoke launch - skipped because no Android device was listed by `adb devices` during final verification.
+- `flutter test` - 36 tests passed.
+- Android smoke launch - launched on `emulator-5554` after gap closure.
 - iOS smoke launch - skipped because no simulator was booted and the known Xcode/CoreSimulator blocker remains outside app code.
 
 ## Open Follow-Up
 
-- `$gsd-verify-work 2` should perform conversational UAT and, if a device is available, run a visual smoke pass on Android.
+- `$gsd-verify-work 2` should retry conversational UAT from Test 3 and confirm the progress screen visually on Android.
 - iOS simulator launch should be retried only after the Xcode/CoreSimulator environment blocker is repaired.
 
 ---

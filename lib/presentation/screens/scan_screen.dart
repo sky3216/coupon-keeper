@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../application/guided_scan_controller.dart';
 import '../../data/in_memory_scan_fingerprint_cache.dart';
 import '../../domain/scan_source.dart';
-import '../../platform/fake_scan_source_picker.dart';
+import '../../platform/phase_two_demo_scan_source_picker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/scan_progress_summary.dart';
@@ -53,8 +53,10 @@ class _ScanScreenState extends State<ScanScreen> {
     _controller =
         controller ??
         GuidedScanController(
-          picker: FakeScanSourcePicker.photos(const []),
+          picker: PhaseTwoDemoScanSourcePicker(),
           fingerprintCache: InMemoryScanFingerprintCache(),
+          processItem: (_) =>
+              Future<void>.delayed(const Duration(milliseconds: 800)),
         );
     _state = _controller.state;
     _stateSubscription = _controller.states.listen((state) {
@@ -268,11 +270,7 @@ class _ScanRunning extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Icon(
-            Icons.hourglass_top,
-            size: 40,
-            color: AppTheme.accent,
-          ),
+          const Icon(Icons.hourglass_top, size: 40, color: AppTheme.accent),
           const SizedBox(height: 24),
           Text(
             '선택한 항목을 확인하고 있어요',
