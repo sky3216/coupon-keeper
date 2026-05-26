@@ -27,92 +27,104 @@ void main() {
     expect(find.text('0/1 처리 중'), findsOneWidget);
     expect(find.text('후보 확인 준비 중'), findsOneWidget);
     expect(find.text('취소'), findsOneWidget);
-  });
 
-  testWidgets('guided scan flow starts at Today, completes, and skips repeat selections', (
-    tester,
-  ) async {
-    final selected = _item('repeat-download');
-    final cache = InMemoryScanFingerprintCache();
-    final progressGate = Completer<void>();
-    var processCalls = 0;
-    final controller = GuidedScanController(
-      picker: FakeScanSourcePicker.downloads([selected]),
-      fingerprintCache: cache,
-      processItem: (_) async {
-        processCalls += 1;
-        if (!progressGate.isCompleted) {
-          await progressGate.future;
-        }
-      },
-    );
-
-    await tester.pumpWidget(CouponKeeperApp(scanController: controller));
-
-    expect(find.text('잊고 있던 쿠폰을 찾아볼까요?'), findsOneWidget);
-    await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
-    await tester.pumpAndSettle();
-    expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
-
-    await tester.tap(find.text('다운로드/파일에서 찾기'));
-    await tester.pump();
-    expect(find.text('선택한 항목을 확인하고 있어요'), findsOneWidget);
-    expect(find.text('0/1 처리 중'), findsOneWidget);
-    expect(find.text('후보 확인 준비 중'), findsOneWidget);
-
-    progressGate.complete();
+    await tester.pump(const Duration(milliseconds: 150));
     await tester.pumpAndSettle();
     expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
-    expect(find.text('확인한 항목 1개'), findsOneWidget);
-
-    await tester.tap(find.text('다시 선택'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('다운로드/파일에서 찾기'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
-    expect(find.text('건너뛴 항목 1개'), findsOneWidget);
-    expect(processCalls, 1);
     expect(find.textContaining('발견'), findsNothing);
     expect(find.textContaining('저장'), findsNothing);
     expect(find.textContaining('수정'), findsNothing);
     expect(find.textContaining('원 보호'), findsNothing);
   });
 
-  test('privacy guard rejects broad scan, broad permissions, and upload scope', () {
-    final forbiddenPatterns = <RegExp>[
-      RegExp(r'READ_MEDIA_IMAGES'),
-      RegExp(r'READ_EXTERNAL_STORAGE'),
-      RegExp(r'NSPhotoLibraryUsageDescription'),
-      RegExp(r'\bdio\s*:', caseSensitive: false),
-      RegExp(r'firebase', caseSensitive: false),
-      RegExp(r'전체\s*사진첩\s*스캔'),
-      RegExp(r'자동\s*업로드'),
-      RegExp(r'cloud', caseSensitive: false),
-      RegExp(r'upload', caseSensitive: false),
-    ];
-    final guardedFiles = [
-      'pubspec.yaml',
-      'android/app/src/main/AndroidManifest.xml',
-      'ios/Runner/Info.plist',
-      'lib/presentation/screens/scan_screen.dart',
-    ];
+  testWidgets(
+    'guided scan flow starts at Today, completes, and skips repeat selections',
+    (tester) async {
+      final selected = _item('repeat-download');
+      final cache = InMemoryScanFingerprintCache();
+      final progressGate = Completer<void>();
+      var processCalls = 0;
+      final controller = GuidedScanController(
+        picker: FakeScanSourcePicker.downloads([selected]),
+        fingerprintCache: cache,
+        processItem: (_) async {
+          processCalls += 1;
+          if (!progressGate.isCompleted) {
+            await progressGate.future;
+          }
+        },
+      );
 
-    for (final path in guardedFiles) {
-      final file = File(path);
-      if (!file.existsSync()) {
-        continue;
+      await tester.pumpWidget(CouponKeeperApp(scanController: controller));
+
+      expect(find.text('잊고 있던 쿠폰을 찾아볼까요?'), findsOneWidget);
+      await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
+      await tester.pumpAndSettle();
+      expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
+
+      await tester.tap(find.text('다운로드/파일에서 찾기'));
+      await tester.pump();
+      expect(find.text('선택한 항목을 확인하고 있어요'), findsOneWidget);
+      expect(find.text('0/1 처리 중'), findsOneWidget);
+      expect(find.text('후보 확인 준비 중'), findsOneWidget);
+
+      progressGate.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
+      expect(find.text('확인한 항목 1개'), findsOneWidget);
+
+      await tester.tap(find.text('다시 선택'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('다운로드/파일에서 찾기'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
+      expect(find.text('건너뛴 항목 1개'), findsOneWidget);
+      expect(processCalls, 1);
+      expect(find.textContaining('발견'), findsNothing);
+      expect(find.textContaining('저장'), findsNothing);
+      expect(find.textContaining('수정'), findsNothing);
+      expect(find.textContaining('원 보호'), findsNothing);
+    },
+  );
+
+  test(
+    'privacy guard rejects broad scan, broad permissions, and upload scope',
+    () {
+      final forbiddenPatterns = <RegExp>[
+        RegExp(r'READ_MEDIA_IMAGES'),
+        RegExp(r'READ_EXTERNAL_STORAGE'),
+        RegExp(r'NSPhotoLibraryUsageDescription'),
+        RegExp(r'\bdio\s*:', caseSensitive: false),
+        RegExp(r'firebase', caseSensitive: false),
+        RegExp(r'전체\s*사진첩\s*스캔'),
+        RegExp(r'자동\s*업로드'),
+        RegExp(r'cloud', caseSensitive: false),
+        RegExp(r'upload', caseSensitive: false),
+      ];
+      final guardedFiles = [
+        'pubspec.yaml',
+        'android/app/src/main/AndroidManifest.xml',
+        'ios/Runner/Info.plist',
+        'lib/presentation/screens/scan_screen.dart',
+      ];
+
+      for (final path in guardedFiles) {
+        final file = File(path);
+        if (!file.existsSync()) {
+          continue;
+        }
+        final text = file.readAsStringSync();
+        for (final pattern in forbiddenPatterns) {
+          expect(
+            pattern.hasMatch(text),
+            isFalse,
+            reason: '$path must not contain broad scan/upload scope: $pattern',
+          );
+        }
       }
-      final text = file.readAsStringSync();
-      for (final pattern in forbiddenPatterns) {
-        expect(
-          pattern.hasMatch(text),
-          isFalse,
-          reason: '$path must not contain broad scan/upload scope: $pattern',
-        );
-      }
-    }
-  });
+    },
+  );
 }
 
 ScanItem _item(String token) {
