@@ -29,7 +29,7 @@ expected: 사용자가 source를 선택하면 진행 화면에 `선택한 항목
 result: fixed-pending-retry
 reported: "진행상태는 아직 나오지 않고 source 선택 화면 뒤에 `이번 선택에서는 쿠폰을 찾지 못했어요` empty 화면이 나온다."
 severity: major
-fix: "`ScanScreen` 기본 경로가 `PhaseTwoDemoScanSourcePicker`와 짧은 async 처리 지연을 사용하도록 수정되어 source 선택 직후 진행 화면을 먼저 표시한다."
+fix: "`ScanScreen` 기본 경로가 `PhaseTwoDemoScanSourcePicker`와 800ms async 처리 지연을 사용하도록 수정되어 source 선택 직후 진행 화면을 먼저 표시한다. 데모 picker는 반복 UAT에서도 중복으로 바로 완료되지 않도록 선택마다 세션 내 고유 source token을 만든다."
 evidence:
   - "`flutter test test/presentation/guided_scan_flow_test.dart --plain-name \"default app path\"` passed"
   - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"
@@ -78,7 +78,7 @@ resolved_gaps: 1
     - commit: "8b8ab76"
       change: "기본 앱 경로 진행 화면 회귀 테스트를 추가하고 실패를 재현했다."
     - commit: "98656c2"
-      change: "기본 ScanScreen에 Phase 2 데모 picker와 150ms 처리 지연을 연결해 진행 화면이 먼저 보이도록 수정했다."
+      change: "기본 ScanScreen에 Phase 2 데모 picker와 처리 지연을 연결해 진행 화면이 먼저 보이도록 수정했다."
   verification:
     - "`flutter test test/presentation/guided_scan_flow_test.dart --plain-name \"default app path\"` passed"
     - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"

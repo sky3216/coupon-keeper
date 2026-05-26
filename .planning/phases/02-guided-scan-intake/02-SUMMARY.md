@@ -26,7 +26,8 @@ verification:
 ## Gap Closure
 
 - UAT Test 3 found that the real default app path jumped from source selection directly to the empty state.
-- `02-04` added a default Phase 2 demo picker and a short observable process delay so the progress shell appears before completion.
+- `02-04` added a default Phase 2 demo picker and an observable process delay so the progress shell appears before completion.
+- Repeated manual UAT now gets a fresh demo source token each time, so it does not immediately complete as duplicate-only.
 - A default `CouponKeeperApp()` widget regression test now covers Today-to-Scan source selection and verifies progress copy before completion.
 
 ## Requirement Evidence

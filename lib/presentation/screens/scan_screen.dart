@@ -53,10 +53,10 @@ class _ScanScreenState extends State<ScanScreen> {
     _controller =
         controller ??
         GuidedScanController(
-          picker: const PhaseTwoDemoScanSourcePicker(),
+          picker: PhaseTwoDemoScanSourcePicker(),
           fingerprintCache: InMemoryScanFingerprintCache(),
           processItem: (_) =>
-              Future<void>.delayed(const Duration(milliseconds: 150)),
+              Future<void>.delayed(const Duration(milliseconds: 800)),
         );
     _state = _controller.state;
     _stateSubscription = _controller.states.listen((state) {
