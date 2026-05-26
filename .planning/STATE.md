@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 2 — Guided Scan Intake
-status: phase-2-implementation-complete
-last_updated: "2026-05-26T15:45:00.000Z"
+status: phase-2-gap-fixed-pending-uat-retry
+last_updated: "2026-05-26T14:19:19.000Z"
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 7
+  completed_plans: 7
   percent: 28
 ---
 
@@ -26,14 +26,14 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Verify Phase 2 guided scan intake through conversational UAT; Android/iOS device smoke remains environment-dependent.
+**Current focus:** Retry Phase 2 UAT Test 3 after the default scan progress shell gap closure; Android is available on `emulator-5554`, while iOS smoke remains environment-dependent.
 
 ## Phase Status
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
-| 2. Guided Scan Intake | Implementation Complete | 3/3 plans complete; `flutter analyze` passed; `flutter test` passed 35/35 |
+| 2. Guided Scan Intake | Gap Fixed, UAT Retry Pending | 4/4 plans complete; `flutter analyze` passed; `flutter test` passed 36/36; Android debug app launched on `emulator-5554` |
 | 3. OCR Candidate Review and Discovery Report | Pending | 0% |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-verify-work 2`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-verify-work 2` and retry Test 3 from the source selection step; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -65,3 +65,4 @@ Run `$gsd-verify-work 2`; update/reinstall Xcode/CoreSimulator separately for iO
 - [Phase 2]: Phase 2 UI-SPEC approved — Guided scan intake UI contract created in .planning/phases/02-guided-scan-intake/02-UI-SPEC.md
 - [Phase 2]: Phase 2 execution plan approved — Research, validation, pattern map, and plans 02-01 through 02-03 are ready for execution.
 - [Phase 2]: Phase 2 implementation complete — Guided scan intake code and tests are complete; final automated verification passed with 35 Flutter tests.
+- [Phase 2]: UAT Test 3 gap fixed — Default ScanScreen now uses a Phase 2 demo picker and observable processing delay so source selection shows the progress shell before completion; final automated verification passed with 36 Flutter tests.
