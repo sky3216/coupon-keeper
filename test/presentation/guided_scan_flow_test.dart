@@ -10,6 +10,25 @@ import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('default app path shows progress after selecting downloads', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const CouponKeeperApp());
+
+    expect(find.text('잊고 있던 쿠폰을 찾아볼까요?'), findsOneWidget);
+    await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pump();
+
+    expect(find.text('선택한 항목을 확인하고 있어요'), findsOneWidget);
+    expect(find.text('0/1 처리 중'), findsOneWidget);
+    expect(find.text('후보 확인 준비 중'), findsOneWidget);
+    expect(find.text('취소'), findsOneWidget);
+  });
+
   testWidgets('guided scan flow starts at Today, completes, and skips repeat selections', (
     tester,
   ) async {
