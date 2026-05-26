@@ -71,6 +71,103 @@ void main() {
     expect(find.text('다시 선택'), findsOneWidget);
     expect(find.text('Scan 처음으로'), findsOneWidget);
   });
+
+  testWidgets('empty, error, and completion states use approved copy', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _scanScreen(
+        GuidedScanController(
+          picker: FakeScanSourcePicker.downloads(const []),
+          fingerprintCache: InMemoryScanFingerprintCache(),
+        ),
+      ),
+    );
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('이번 선택에서는 쿠폰을 찾지 못했어요'), findsOneWidget);
+    expect(find.text('다시 선택'), findsOneWidget);
+
+    await tester.pumpWidget(
+      _scanScreen(
+        GuidedScanController(
+          picker: FakeScanSourcePicker.accessDenied(),
+          fingerprintCache: InMemoryScanFingerprintCache(),
+        ),
+      ),
+    );
+    await tester.tap(find.text('사진에서 찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('선택한 항목을 열 수 없어요'), findsOneWidget);
+
+    await tester.pumpWidget(
+      _scanScreen(
+        GuidedScanController(
+          picker: FakeScanSourcePicker.fileUnavailable(),
+          fingerprintCache: InMemoryScanFingerprintCache(),
+        ),
+      ),
+    );
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('파일을 찾을 수 없어요'), findsOneWidget);
+
+    await tester.pumpWidget(
+      _scanScreen(
+        GuidedScanController(
+          picker: FakeScanSourcePicker.downloads([_item('bad')]),
+          fingerprintCache: InMemoryScanFingerprintCache(),
+          processItem: (_) => throw StateError('cannot process'),
+        ),
+      ),
+    );
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('일부 항목을 확인하지 못했어요'), findsOneWidget);
+
+    await tester.pumpWidget(
+      _scanScreen(
+        GuidedScanController(
+          picker: FakeScanSourcePicker.downloads([_item('done')]),
+          fingerprintCache: InMemoryScanFingerprintCache(),
+        ),
+      ),
+    );
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
+    expect(find.text('확인한 항목 1개'), findsOneWidget);
+    expect(find.textContaining('발견'), findsNothing);
+    expect(find.textContaining('원 보호'), findsNothing);
+  });
+
+  testWidgets('scan source and cancel actions fit on 320x568', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final gate = Completer<void>();
+    final controller = GuidedScanController(
+      picker: FakeScanSourcePicker.downloads([_item('small')]),
+      fingerprintCache: InMemoryScanFingerprintCache(),
+      processItem: (_) => gate.future,
+    );
+    await tester.pumpWidget(_scanScreen(controller));
+
+    await tester.ensureVisible(find.text('다운로드/파일에서 찾기'));
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pump();
+
+    await tester.ensureVisible(find.text('취소'));
+    await tester.tap(find.text('취소'));
+    gate.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.text('스캔을 멈췄어요'), findsOneWidget);
+  });
 }
 
 Widget _scanScreen(GuidedScanController controller) {
