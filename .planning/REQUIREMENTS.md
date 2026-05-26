@@ -20,10 +20,10 @@
 
 ### Guided Scan
 
-- [ ] **SCAN-01**: User can start a guided scan from the Scan tab or Today CTA.
-- [ ] **SCAN-02**: User can choose photos or downloadable files/folders without first-launch broad library scanning.
-- [ ] **SCAN-03**: User sees batch scan progress, live candidate count, and a cancel option.
-- [ ] **SCAN-04**: App skips already-scanned files using fingerprints.
+- [x] **SCAN-01**: User can start a guided scan from the Scan tab or Today CTA.
+- [x] **SCAN-02**: User can choose photos or downloadable files/folders without first-launch broad library scanning.
+- [x] **SCAN-03**: User sees batch scan progress, live candidate count, and a cancel option.
+- [x] **SCAN-04**: App skips already-scanned files using fingerprints.
 - [ ] **SCAN-05**: User sees a first scan discovery report before reviewing individual candidates.
 
 ### OCR and Candidate Confirmation
@@ -118,10 +118,10 @@
 | PASS-01 | Phase 1 | Complete |
 | PASS-02 | Phase 1 | Complete |
 | PASS-03 | Phase 1 | Complete |
-| SCAN-01 | Phase 2 | Pending |
-| SCAN-02 | Phase 2 | Pending |
-| SCAN-03 | Phase 2 | Pending |
-| SCAN-04 | Phase 2 | Pending |
+| SCAN-01 | Phase 2 | Complete |
+| SCAN-02 | Phase 2 | Complete |
+| SCAN-03 | Phase 2 | Complete |
+| SCAN-04 | Phase 2 | Complete |
 | SCAN-05 | Phase 3 | Pending |
 | OCR-01 | Phase 3 | Pending |
 | OCR-02 | Phase 3 | Pending |

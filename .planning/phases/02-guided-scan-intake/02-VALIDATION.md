@@ -32,14 +32,14 @@ created: 2026-05-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 02-01-01 | 01 | 1 | SCAN-02 | T-02-01 | Source model stores selected items only | unit | `flutter test test/domain/scan_item_test.dart` | ❌ W1 | ⬜ pending |
-| 02-01-02 | 01 | 1 | SCAN-04 | T-02-02 | Fingerprints avoid raw absolute paths | unit | `flutter test test/data/scan_fingerprint_cache_test.dart` | ❌ W1 | ⬜ pending |
-| 02-01-03 | 01 | 1 | SCAN-03, SCAN-04 | T-02-03 | Cancelled items are not marked scanned | unit | `flutter test test/application/guided_scan_controller_test.dart` | ❌ W1 | ⬜ pending |
-| 02-02-01 | 02 | 2 | SCAN-01, SCAN-02 | T-02-04 | Scan idle state does not request broad permission | widget | `flutter test test/presentation/scan_screen_test.dart` | ❌ W2 | ⬜ pending |
-| 02-02-02 | 02 | 2 | SCAN-03 | T-02-05 | Progress and cancel remain visible | widget | `flutter test test/presentation/scan_screen_test.dart` | ❌ W2 | ⬜ pending |
-| 02-02-03 | 02 | 2 | SCAN-03 | T-02-06 | Empty/error/completion states are explicit | widget | `flutter test test/presentation/scan_screen_test.dart` | ❌ W2 | ⬜ pending |
-| 02-03-01 | 03 | 3 | SCAN-01..04 | T-02-07 | End-to-end fake flow never opens native picker directly from Today | widget | `flutter test test/presentation/guided_scan_flow_test.dart` | ❌ W3 | ⬜ pending |
-| 02-03-02 | 03 | 3 | SCAN-02, SCAN-04 | T-02-08 | Static guard rejects broad-scan permissions/packages | unit/static | `flutter test test/presentation/guided_scan_flow_test.dart && flutter analyze` | ❌ W3 | ⬜ pending |
+| 02-01-01 | 01 | 1 | SCAN-02 | T-02-01 | Source model stores selected items only | unit | `flutter test test/domain/scan_item_test.dart` | ✅ | ✅ green |
+| 02-01-02 | 01 | 1 | SCAN-04 | T-02-02 | Fingerprints avoid raw absolute paths | unit | `flutter test test/data/scan_fingerprint_cache_test.dart` | ✅ | ✅ green |
+| 02-01-03 | 01 | 1 | SCAN-03, SCAN-04 | T-02-03 | Cancelled items are not marked scanned | unit | `flutter test test/application/guided_scan_controller_test.dart` | ✅ | ✅ green |
+| 02-02-01 | 02 | 2 | SCAN-01, SCAN-02 | T-02-04 | Scan idle state does not request broad permission | widget | `flutter test test/presentation/scan_screen_test.dart` | ✅ | ✅ green |
+| 02-02-02 | 02 | 2 | SCAN-03 | T-02-05 | Progress and cancel remain visible | widget | `flutter test test/presentation/scan_screen_test.dart` | ✅ | ✅ green |
+| 02-02-03 | 02 | 2 | SCAN-03 | T-02-06 | Empty/error/completion states are explicit | widget | `flutter test test/presentation/scan_screen_test.dart` | ✅ | ✅ green |
+| 02-03-01 | 03 | 3 | SCAN-01..04 | T-02-07 | End-to-end fake flow never opens native picker directly from Today | widget | `flutter test test/presentation/guided_scan_flow_test.dart` | ✅ | ✅ green |
+| 02-03-02 | 03 | 3 | SCAN-02, SCAN-04 | T-02-08 | Static guard rejects broad-scan permissions/packages | unit/static | `flutter test test/presentation/guided_scan_flow_test.dart && flutter analyze` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -67,5 +67,4 @@ Existing infrastructure covers all phase requirements:
 - [x] Feedback latency < 120s for automated checks.
 - [x] `nyquist_compliant: true` set in frontmatter.
 
-**Approval:** pending
-
+**Approval:** automated checks passed 2026-05-26; manual device smoke pending available devices.
