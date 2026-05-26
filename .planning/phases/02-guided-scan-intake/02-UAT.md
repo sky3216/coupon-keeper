@@ -1,5 +1,5 @@
 ---
-status: fixed-pending-user-retry
+status: testing
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -12,7 +12,11 @@ updated: 2026-05-26T14:19:19Z
 
 ## Current Test
 
-[ready to retry test 3 - gap fixed in code, user confirmation pending]
+number: 4
+name: Duplicate Selection Is Skipped
+expected: |
+  이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다.
+awaiting: user response
 
 ## Tests
 
@@ -26,7 +30,7 @@ result: pass
 
 ### 3. Progress and Cancel Are Clear
 expected: 사용자가 source를 선택하면 진행 화면에 `선택한 항목을 확인하고 있어요`, `{processed}/{total} 처리 중`, `후보 확인 준비 중`, `취소`가 보입니다. 취소하면 `스캔을 멈췄어요`와 `다시 선택`, `Scan 처음으로`가 보여야 합니다.
-result: fixed-pending-retry
+result: pass
 reported: "진행상태는 아직 나오지 않고 source 선택 화면 뒤에 `이번 선택에서는 쿠폰을 찾지 못했어요` empty 화면이 나온다."
 severity: major
 fix: "`ScanScreen` 기본 경로가 `PhaseTwoDemoScanSourcePicker`와 800ms async 처리 지연을 사용하도록 수정되어 source 선택 직후 진행 화면을 먼저 표시한다. 데모 picker는 반복 UAT에서도 중복으로 바로 완료되지 않도록 선택마다 세션 내 고유 source token을 만든다."
@@ -51,9 +55,9 @@ result: [pending]
 ## Summary
 
 total: 6
-passed: 2
+passed: 3
 issues: 0
-pending: 4
+pending: 3
 skipped: 0
 blocked: 0
 resolved_gaps: 1
@@ -61,7 +65,7 @@ resolved_gaps: 1
 ## Gaps
 
 - truth: "사용자가 source를 선택하면 진행 화면에 `선택한 항목을 확인하고 있어요`, `{processed}/{total} 처리 중`, `후보 확인 준비 중`, `취소`가 보입니다. 취소하면 `스캔을 멈췄어요`와 `다시 선택`, `Scan 처음으로`가 보여야 합니다."
-  status: resolved-pending-user-retry
+  status: resolved-confirmed
   reason: "User reported: 진행상태는 아직 나오지 않고 source 선택 화면 뒤에 `이번 선택에서는 쿠폰을 찾지 못했어요` empty 화면이 나온다."
   severity: major
   test: 3
