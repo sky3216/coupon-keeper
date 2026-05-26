@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../application/guided_scan_controller.dart';
 import '../screens/scan_screen.dart';
 import '../screens/today_screen.dart';
 import '../screens/wallet_screen.dart';
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  const AppShell({this.scanController, super.key});
+
+  final GuidedScanController? scanController;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -28,7 +31,7 @@ class _AppShellState extends State<AppShell> {
           children: [
             TodayScreen(onScanSelected: _selectScan),
             WalletScreen(onScanSelected: _selectScan),
-            const ScanScreen(),
+            ScanScreen(controller: widget.scanController),
           ],
         ),
       ),

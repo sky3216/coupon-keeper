@@ -22,8 +22,8 @@ void main() {
     await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
     await tester.pumpAndSettle();
 
-    expect(find.text('선택한 항목에서 쿠폰을 찾습니다'), findsOneWidget);
-    expect(find.text('스캔 준비'), findsOneWidget);
+    expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
+    expect(find.text('사진에서 찾기'), findsOneWidget);
   });
 
   testWidgets('Wallet CTA moves to Scan', (tester) async {
@@ -36,7 +36,7 @@ void main() {
 
     await tester.tap(find.text('Scan으로 이동'));
     await tester.pumpAndSettle();
-    expect(find.text('선택한 항목에서 쿠폰을 찾습니다'), findsOneWidget);
+    expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
   });
 
   testWidgets('empty states use approved copy and no placeholders', (
@@ -48,7 +48,9 @@ void main() {
       find.text('사진과 다운로드에 흩어진 쿠폰을 선택한 범위 안에서 찾아 지갑에 모아둘 수 있어요.'),
       findsOneWidget,
     );
-    expect(find.text('선택한 항목만 기기 안에서 확인합니다.'), findsOneWidget);
+    await tester.tap(find.text('Scan'));
+    await tester.pumpAndSettle();
+    expect(find.text('선택한 사진과 파일만 기기 안에서 확인합니다.'), findsOneWidget);
     expect(find.text('TODO'), findsNothing);
     expect(find.text('Lorem ipsum'), findsNothing);
     expect(find.text('Coming soon'), findsNothing);
@@ -69,7 +71,7 @@ void main() {
     await tester.ensureVisible(cta);
     await tester.tap(cta);
     await tester.pumpAndSettle();
-    expect(find.text('선택한 항목에서 쿠폰을 찾습니다'), findsOneWidget);
+    expect(find.text('어디에서 쿠폰을 찾을까요?'), findsOneWidget);
   });
 
   testWidgets('Wallet remains honestly empty by default', (tester) async {
