@@ -15,14 +15,13 @@ class GuidedScanController {
     required this.picker,
     required this.fingerprintCache,
     ScanItemProcessor? processItem,
-    Duration duplicateOnlyDelay = Duration.zero,
-  }) : _processItem = processItem ?? _defaultProcessItem,
-       _duplicateOnlyDelay = duplicateOnlyDelay;
+    this.duplicateOnlyDelay = Duration.zero,
+  }) : _processItem = processItem ?? _defaultProcessItem;
 
   final ScanSourcePicker picker;
   final ScanFingerprintCache fingerprintCache;
   final ScanItemProcessor _processItem;
-  final Duration _duplicateOnlyDelay;
+  final Duration duplicateOnlyDelay;
   final StreamController<GuidedScanState> _states =
       StreamController<GuidedScanState>.broadcast();
 
@@ -99,8 +98,8 @@ class GuidedScanController {
 
     if (batch.unseenItems.isEmpty &&
         batch.duplicateCount > 0 &&
-        _duplicateOnlyDelay > Duration.zero) {
-      await Future<void>.delayed(_duplicateOnlyDelay);
+        duplicateOnlyDelay > Duration.zero) {
+      await Future<void>.delayed(duplicateOnlyDelay);
     }
 
     for (final item in batch.unseenItems) {
