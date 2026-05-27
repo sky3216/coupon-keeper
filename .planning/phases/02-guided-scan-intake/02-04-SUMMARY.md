@@ -24,7 +24,6 @@ verification:
 - Added a default `CouponKeeperApp()` regression test that reproduces the missing progress shell after `다운로드/파일에서 찾기`.
 - Added `PhaseTwoDemoScanSourcePicker` for the Phase 2 shell so default source selection returns one deterministic selected item without claiming real OCR or coupon discovery.
 - Updated the default `ScanScreen` controller to use the Phase 2 demo picker and an 800ms async process delay, making the progress screen observable before completion.
-- Adjusted the demo picker to generate a unique source token per selection so repeated manual UAT does not jump straight to a duplicate-only completion screen.
 - Updated UAT evidence so Test 3 is ready for user retry instead of still diagnosed-only.
 
 ## Task Results
@@ -32,7 +31,7 @@ verification:
 | Task | Result | Evidence |
 |------|--------|----------|
 | 02-04-01 Add failing default app path progress regression test | Complete | Test failed before implementation because progress text was absent. Commit `8b8ab76`. |
-| 02-04-02 Add default Phase 2 demo picker and observable process delay | Complete | Focused default app path and related widget tests passed. Commit `98656c2`; repeated manual UAT visibility correction added afterward. |
+| 02-04-02 Add default Phase 2 demo picker and observable process delay | Complete | Focused default app path and related widget tests passed. Commit `98656c2`. |
 | 02-04-03 Re-run verification and update UAT status | Complete | `flutter analyze` passed, `flutter test` passed 36 tests, Android emulator launch completed. |
 
 ## Verification

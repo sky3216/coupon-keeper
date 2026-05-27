@@ -3,11 +3,11 @@ phase: 2-guided-scan-intake
 status: implementation-complete
 completed: 2026-05-26
 requirements-completed: [SCAN-01, SCAN-02, SCAN-03, SCAN-04]
-plans-completed: ["02-01", "02-02", "02-03", "02-04"]
+plans-completed: ["02-01", "02-02", "02-03", "02-04", "02-05"]
 verification:
   flutter_analyze: passed
-  flutter_test: "36 passed"
-  android_smoke: launched-on-emulator-5554-after-gap-closure
+  flutter_test: "37 passed"
+  android_smoke: launched-on-emulator-5554-after-duplicate-gap-closure
   ios_smoke: skipped-known-environment-blocker
 ---
 
@@ -27,8 +27,9 @@ verification:
 
 - UAT Test 3 found that the real default app path jumped from source selection directly to the empty state.
 - `02-04` added a default Phase 2 demo picker and an observable process delay so the progress shell appears before completion.
-- Repeated manual UAT now gets a fresh demo source token each time, so it does not immediately complete as duplicate-only.
 - A default `CouponKeeperApp()` widget regression test now covers Today-to-Scan source selection and verifies progress copy before completion.
+- UAT Test 4 found that repeated default source selection did not show duplicate skip feedback.
+- `02-05` restored stable demo source tokens and added a duplicate-only observation delay so repeated selection shows duplicate skip feedback before completion.
 
 ## Requirement Evidence
 
@@ -42,13 +43,13 @@ verification:
 ## Verification
 
 - `flutter analyze` - no issues found.
-- `flutter test` - 36 tests passed.
-- Android smoke launch - launched on `emulator-5554` after gap closure.
+- `flutter test` - 37 tests passed.
+- Android smoke launch - launched on `emulator-5554` after duplicate gap closure.
 - iOS smoke launch - skipped because no simulator was booted and the known Xcode/CoreSimulator blocker remains outside app code.
 
 ## Open Follow-Up
 
-- `$gsd-verify-work 2` should retry conversational UAT from Test 3 and confirm the progress screen visually on Android.
+- `$gsd-verify-work 2` should retry conversational UAT from Test 4 and confirm duplicate skip feedback visually on Android.
 - iOS simulator launch should be retried only after the Xcode/CoreSimulator environment blocker is repaired.
 
 ---

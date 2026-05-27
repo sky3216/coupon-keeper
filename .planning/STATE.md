@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 2 — Guided Scan Intake
-status: phase-2-duplicate-gap-diagnosed
-last_updated: "2026-05-27T13:27:21.000Z"
+status: phase-2-duplicate-gap-fixed-pending-uat-retry
+last_updated: "2026-05-27T14:57:29.000Z"
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 28
 ---
 
@@ -26,14 +26,14 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Fix Phase 2 UAT Test 4 duplicate skip visibility in the default app path; Android is available on `emulator-5554`, while iOS smoke remains environment-dependent.
+**Current focus:** Retry Phase 2 UAT Test 4 after duplicate skip visibility gap closure; Android is available on `emulator-5554`, while iOS smoke remains environment-dependent.
 
 ## Phase Status
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
-| 2. Guided Scan Intake | Duplicate Gap Diagnosed | 4/4 implementation plans complete plus 02-05 gap plan ready; UAT 1-3 passed; UAT 4 failed because repeated default source selection does not show duplicate skip feedback |
+| 2. Guided Scan Intake | Duplicate Gap Fixed, UAT Retry Pending | 5/5 plans complete; UAT 1-3 passed; UAT 4 fixed in code and ready for user retry; `flutter analyze` passed; `flutter test` passed 37/37 |
 | 3. OCR Candidate Review and Discovery Report | Pending | 0% |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-execute-phase 2 --gaps-only` to execute `02-05-PLAN.md`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-verify-work 2` and retry Test 4 from the duplicate selection step; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -67,3 +67,4 @@ Run `$gsd-execute-phase 2 --gaps-only` to execute `02-05-PLAN.md`; update/reinst
 - [Phase 2]: Phase 2 implementation complete — Guided scan intake code and tests are complete; final automated verification passed with 35 Flutter tests.
 - [Phase 2]: UAT Test 3 gap fixed — Default ScanScreen now uses a Phase 2 demo picker and observable processing delay so source selection shows the progress shell before completion; final automated verification passed with 36 Flutter tests.
 - [Phase 2]: UAT Test 4 duplicate gap diagnosed — Repeated default source selection currently shows `확인한 항목 1개` instead of duplicate skip feedback because the demo picker generates a new source token per pick; gap closure plan 02-05 is ready.
+- [Phase 2]: UAT Test 4 duplicate gap fixed — Default demo picker now uses stable source tokens and duplicate-only selections remain visible long enough to show skip feedback; final automated verification passed with 37 Flutter tests.

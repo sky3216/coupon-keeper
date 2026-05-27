@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: fixed-pending-user-retry
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -7,12 +7,12 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-27T13:27:21Z
+updated: 2026-05-27T14:57:29Z
 ---
 
 ## Current Test
 
-[testing paused - gap found in test 4]
+[ready to retry test 4 - gap fixed in code, user confirmation pending]
 
 ## Tests
 
@@ -29,7 +29,7 @@ expected: 사용자가 source를 선택하면 진행 화면에 `선택한 항목
 result: pass
 reported: "진행상태는 아직 나오지 않고 source 선택 화면 뒤에 `이번 선택에서는 쿠폰을 찾지 못했어요` empty 화면이 나온다."
 severity: major
-fix: "`ScanScreen` 기본 경로가 `PhaseTwoDemoScanSourcePicker`와 800ms async 처리 지연을 사용하도록 수정되어 source 선택 직후 진행 화면을 먼저 표시한다. 데모 picker는 반복 UAT에서도 중복으로 바로 완료되지 않도록 선택마다 세션 내 고유 source token을 만든다."
+fix: "`ScanScreen` 기본 경로가 `PhaseTwoDemoScanSourcePicker`와 800ms async 처리 지연을 사용하도록 수정되어 source 선택 직후 진행 화면을 먼저 표시한다."
 evidence:
   - "`flutter test test/presentation/guided_scan_flow_test.dart --plain-name \"default app path\"` passed"
   - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"
@@ -38,27 +38,33 @@ evidence:
 
 ### 4. Duplicate Selection Is Skipped
 expected: 이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다.
-result: issue
+result: fixed-pending-retry
 reported: "반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
 severity: major
+fix: "`PhaseTwoDemoScanSourcePicker`가 같은 source에 안정적인 demo token을 반환하도록 되돌리고, `GuidedScanController`에 duplicate-only 관찰 지연을 추가해 반복 선택 시 skip 문구와 completion summary가 보이도록 수정했다."
+evidence:
+  - "`flutter test test/presentation/guided_scan_flow_test.dart --plain-name \"default duplicate\"` passed"
+  - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"
+  - "`flutter analyze` passed"
+  - "`flutter test` passed 37 tests"
 
 ### 5. Empty, Error, and Completion States Are Honest
 expected: 선택 결과가 비었을 때는 `이번 선택에서는 쿠폰을 찾지 못했어요`가 보이고, 접근 거부/파일 없음/처리 실패는 각각 다른 회복 문구를 보여줍니다. 완료 상태는 `선택한 항목 확인을 마쳤어요`와 Phase 3 준비 문구만 보여주며 발견 개수, 보호 금액, 저장/수정 화면을 보여주지 않습니다.
 result: [pending]
 
 ### 6. Automated Verification Evidence Is Green
-expected: Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 36 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
+expected: Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 37 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
 result: [pending]
 
 ## Summary
 
 total: 6
 passed: 3
-issues: 1
-pending: 2
+issues: 0
+pending: 3
 skipped: 0
 blocked: 0
-resolved_gaps: 1
+resolved_gaps: 2
 
 ## Gaps
 
@@ -89,7 +95,7 @@ resolved_gaps: 1
   debug_session: ".planning/phases/02-guided-scan-intake/02-UAT.md"
 
 - truth: "이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다."
-  status: failed
+  status: resolved-pending-user-retry
   reason: "User reported: 반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
   severity: major
   test: 4
@@ -105,4 +111,16 @@ resolved_gaps: 1
     - "기본 앱 경로에서도 같은 demo source를 다시 선택하면 duplicate skip summary가 보여야 한다."
     - "모든 항목이 duplicate인 선택도 진행 화면과 duplicate skip 문구가 관찰 가능해야 한다."
     - "기본 CouponKeeperApp 경로의 반복 선택 duplicate 회귀 테스트가 필요하다."
+  fix:
+    - commit: "8bd8ff7"
+      change: "기본 CouponKeeperApp 경로에서 반복 source 선택 duplicate skip 회귀 테스트를 추가하고 실패를 재현했다."
+    - commit: "dd1d158"
+      change: "PhaseTwoDemoScanSourcePicker를 안정적인 demo token으로 되돌리고 duplicate-only progress 관찰 지연을 연결했다."
+    - commit: "5c786e2"
+      change: "duplicate-only 지연 설정을 analyzer 규칙에 맞게 정리했다."
+  verification:
+    - "`flutter test test/presentation/guided_scan_flow_test.dart --plain-name \"default duplicate\"` passed"
+    - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"
+    - "`flutter analyze` passed"
+    - "`flutter test` passed 37 tests"
   debug_session: ".planning/phases/02-guided-scan-intake/02-UAT.md"
