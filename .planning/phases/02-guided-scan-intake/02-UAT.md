@@ -1,5 +1,5 @@
 ---
-status: testing
+status: diagnosed
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -7,16 +7,12 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-26T14:19:19Z
+updated: 2026-05-27T13:27:21Z
 ---
 
 ## Current Test
 
-number: 4
-name: Duplicate Selection Is Skipped
-expected: |
-  이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다.
-awaiting: user response
+[testing paused - gap found in test 4]
 
 ## Tests
 
@@ -42,7 +38,9 @@ evidence:
 
 ### 4. Duplicate Selection Is Skipped
 expected: 이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다.
-result: [pending]
+result: issue
+reported: "반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
+severity: major
 
 ### 5. Empty, Error, and Completion States Are Honest
 expected: 선택 결과가 비었을 때는 `이번 선택에서는 쿠폰을 찾지 못했어요`가 보이고, 접근 거부/파일 없음/처리 실패는 각각 다른 회복 문구를 보여줍니다. 완료 상태는 `선택한 항목 확인을 마쳤어요`와 Phase 3 준비 문구만 보여주며 발견 개수, 보호 금액, 저장/수정 화면을 보여주지 않습니다.
@@ -56,8 +54,8 @@ result: [pending]
 
 total: 6
 passed: 3
-issues: 0
-pending: 3
+issues: 1
+pending: 2
 skipped: 0
 blocked: 0
 resolved_gaps: 1
@@ -88,4 +86,23 @@ resolved_gaps: 1
     - "`flutter test test/presentation/guided_scan_flow_test.dart test/presentation/scan_screen_test.dart` passed"
     - "`flutter analyze` passed"
     - "`flutter test` passed 36 tests"
+  debug_session: ".planning/phases/02-guided-scan-intake/02-UAT.md"
+
+- truth: "이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다."
+  status: failed
+  reason: "User reported: 반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
+  severity: major
+  test: 4
+  root_cause: "`PhaseTwoDemoScanSourcePicker`가 반복 수동 UAT에서 진행 화면을 보이게 하려고 선택마다 `phase-two-demo-{source}-{count}` 형태의 새 source token을 만든다. 이 때문에 기본 앱 경로에서는 같은 항목을 다시 고르는 상황이 만들어지지 않아 `InMemoryScanFingerprintCache.filterUnseen`이 duplicate로 판정할 수 없다. 기존 duplicate 테스트는 injected controller 경로만 검증하고, 실제 기본 앱 경로의 반복 선택 동작을 검증하지 않는다."
+  artifacts:
+    - path: "lib/platform/phase_two_demo_scan_source_picker.dart"
+      issue: "선택마다 source token이 바뀌어 기본 앱 경로에서 duplicate skip이 불가능하다."
+    - path: "lib/application/guided_scan_controller.dart"
+      issue: "모든 항목이 duplicate인 경우 running 상태는 emit하지만 처리 지연 없이 completion으로 바로 넘어가 수동 UAT에서 duplicate progress가 관찰되기 어렵다."
+    - path: "test/presentation/guided_scan_flow_test.dart"
+      issue: "기본 CouponKeeperApp 경로에서 같은 source를 다시 선택했을 때 duplicate summary가 보이는지 검증하지 않는다."
+  missing:
+    - "기본 앱 경로에서도 같은 demo source를 다시 선택하면 duplicate skip summary가 보여야 한다."
+    - "모든 항목이 duplicate인 선택도 진행 화면과 duplicate skip 문구가 관찰 가능해야 한다."
+    - "기본 CouponKeeperApp 경로의 반복 선택 duplicate 회귀 테스트가 필요하다."
   debug_session: ".planning/phases/02-guided-scan-intake/02-UAT.md"
