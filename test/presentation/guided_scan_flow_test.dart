@@ -35,6 +35,22 @@ void main() {
     expect(find.textContaining('저장'), findsNothing);
     expect(find.textContaining('수정'), findsNothing);
     expect(find.textContaining('원 보호'), findsNothing);
+  });
+
+  testWidgets('default duplicate selection shows skip feedback', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const CouponKeeperApp());
+
+    await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+    await tester.pumpAndSettle();
+
+    expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
+    expect(find.text('확인한 항목 1개'), findsOneWidget);
 
     await tester.tap(find.text('다시 선택'));
     await tester.pumpAndSettle();
@@ -45,12 +61,16 @@ void main() {
     expect(find.text('0/1 처리 중'), findsOneWidget);
     expect(find.text('후보 확인 준비 중'), findsOneWidget);
     expect(find.text('취소'), findsOneWidget);
-    expect(find.textContaining('건너뛴 항목'), findsNothing);
+    expect(find.text('이미 확인한 항목 1개는 건너뛰었어요'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 800));
     await tester.pumpAndSettle();
     expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
-    expect(find.text('확인한 항목 1개'), findsOneWidget);
+    expect(find.text('건너뛴 항목 1개'), findsOneWidget);
+    expect(find.textContaining('발견'), findsNothing);
+    expect(find.textContaining('저장'), findsNothing);
+    expect(find.textContaining('수정'), findsNothing);
+    expect(find.textContaining('원 보호'), findsNothing);
   });
 
   testWidgets(
