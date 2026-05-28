@@ -1,5 +1,5 @@
 ---
-status: fixed-pending-user-retry
+status: testing
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -7,12 +7,16 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-27T14:57:29Z
+updated: 2026-05-28T13:29:25Z
 ---
 
 ## Current Test
 
-[ready to retry test 4 - gap fixed in code, user confirmation pending]
+number: 5
+name: Empty, Error, and Completion States Are Honest
+expected: |
+  선택 결과가 비었을 때는 `이번 선택에서는 쿠폰을 찾지 못했어요`가 보이고, 접근 거부/파일 없음/처리 실패는 각각 다른 회복 문구를 보여줍니다. 완료 상태는 `선택한 항목 확인을 마쳤어요`와 Phase 3 준비 문구만 보여주며 발견 개수, 보호 금액, 저장/수정 화면을 보여주지 않습니다.
+awaiting: user response
 
 ## Tests
 
@@ -38,7 +42,7 @@ evidence:
 
 ### 4. Duplicate Selection Is Skipped
 expected: 이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다.
-result: fixed-pending-retry
+result: pass
 reported: "반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
 severity: major
 fix: "`PhaseTwoDemoScanSourcePicker`가 같은 source에 안정적인 demo token을 반환하도록 되돌리고, `GuidedScanController`에 duplicate-only 관찰 지연을 추가해 반복 선택 시 skip 문구와 completion summary가 보이도록 수정했다."
@@ -59,9 +63,9 @@ result: [pending]
 ## Summary
 
 total: 6
-passed: 3
+passed: 4
 issues: 0
-pending: 3
+pending: 2
 skipped: 0
 blocked: 0
 resolved_gaps: 2
@@ -95,7 +99,7 @@ resolved_gaps: 2
   debug_session: ".planning/phases/02-guided-scan-intake/02-UAT.md"
 
 - truth: "이미 확인한 항목을 다시 선택하면 앱은 그 항목을 다시 처리하지 않고 `이미 확인한 항목 N개는 건너뛰었어요` 또는 완료 요약의 `건너뛴 항목 N개`로 알려줍니다. 저장된 쿠폰이나 후보 카드가 가짜로 생기면 안 됩니다."
-  status: resolved-pending-user-retry
+  status: resolved-confirmed
   reason: "User reported: 반복 선택 후 완료 화면에 `확인한 항목 1개`만 보이고 `건너뛴 항목 1개` 또는 duplicate skip 문구가 보이지 않는다."
   severity: major
   test: 4
