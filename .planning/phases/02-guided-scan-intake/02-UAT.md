@@ -7,15 +7,15 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-28T13:29:25Z
+updated: 2026-05-28T13:31:25Z
 ---
 
 ## Current Test
 
-number: 5
-name: Empty, Error, and Completion States Are Honest
+number: 6
+name: Automated Verification Evidence Is Green
 expected: |
-  선택 결과가 비었을 때는 `이번 선택에서는 쿠폰을 찾지 못했어요`가 보이고, 접근 거부/파일 없음/처리 실패는 각각 다른 회복 문구를 보여줍니다. 완료 상태는 `선택한 항목 확인을 마쳤어요`와 Phase 3 준비 문구만 보여주며 발견 개수, 보호 금액, 저장/수정 화면을 보여주지 않습니다.
+  Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 37 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
 awaiting: user response
 
 ## Tests
@@ -54,7 +54,7 @@ evidence:
 
 ### 5. Empty, Error, and Completion States Are Honest
 expected: 선택 결과가 비었을 때는 `이번 선택에서는 쿠폰을 찾지 못했어요`가 보이고, 접근 거부/파일 없음/처리 실패는 각각 다른 회복 문구를 보여줍니다. 완료 상태는 `선택한 항목 확인을 마쳤어요`와 Phase 3 준비 문구만 보여주며 발견 개수, 보호 금액, 저장/수정 화면을 보여주지 않습니다.
-result: [pending]
+result: pass
 
 ### 6. Automated Verification Evidence Is Green
 expected: Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 37 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
@@ -63,9 +63,9 @@ result: [pending]
 ## Summary
 
 total: 6
-passed: 4
+passed: 5
 issues: 0
-pending: 2
+pending: 1
 skipped: 0
 blocked: 0
 resolved_gaps: 2
