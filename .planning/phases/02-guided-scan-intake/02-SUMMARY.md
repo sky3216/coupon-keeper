@@ -4,6 +4,7 @@ status: implementation-complete
 completed: 2026-05-26
 requirements-completed: [SCAN-01, SCAN-02, SCAN-03, SCAN-04]
 plans-completed: ["02-01", "02-02", "02-03", "02-04", "02-05"]
+uat: "6/6 passed on Android"
 verification:
   flutter_analyze: passed
   flutter_test: "37 passed"
@@ -49,7 +50,7 @@ verification:
 
 ## Open Follow-Up
 
-- `$gsd-verify-work 2` should retry conversational UAT from Test 4 and confirm duplicate skip feedback visually on Android.
+- Phase 3 planning can start with `$gsd-plan-phase 3` when ready.
 - iOS simulator launch should be retried only after the Xcode/CoreSimulator environment blocker is repaired.
 
 ---

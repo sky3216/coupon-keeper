@@ -1,5 +1,5 @@
 ---
-status: testing
+status: pass
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -7,16 +7,12 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-28T13:31:25Z
+updated: 2026-05-28T13:33:35Z
 ---
 
 ## Current Test
 
-number: 6
-name: Automated Verification Evidence Is Green
-expected: |
-  Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 37 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
-awaiting: user response
+[complete - 6/6 tests passed]
 
 ## Tests
 
@@ -58,14 +54,19 @@ result: pass
 
 ### 6. Automated Verification Evidence Is Green
 expected: Phase 2 자동 검증은 `flutter analyze` no issues, `flutter test` 37 tests passed 상태입니다. Android/iOS smoke는 booted device가 없으면 코드 실패가 아니라 환경상 blocked/skipped로 분리 기록됩니다.
-result: [pending]
+result: pass
+evidence:
+  - "`flutter analyze` passed with no issues"
+  - "`flutter test` passed 37 tests"
+  - "Android debug app installed and launched on `emulator-5554`"
+  - "iOS smoke remains blocked by the known Xcode/CoreSimulator environment issue, not app code"
 
 ## Summary
 
 total: 6
-passed: 5
+passed: 6
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 resolved_gaps: 2
