@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 — Guided Scan Intake
-status: phase-2-uat-pass
-last_updated: "2026-05-28T13:33:35.000Z"
+current_phase: Phase 3 — OCR Candidate Review and Discovery Report
+status: phase-3-context-ready
+last_updated: "2026-05-28T14:54:16.854Z"
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
   completed_plans: 8
   percent: 28
@@ -16,7 +16,7 @@ progress:
 # State: Coupon Keeper
 
 **Initialized:** 2026-05-21
-**Current Phase:** Phase 2 — Guided Scan Intake
+**Current Phase:** Phase 3 — OCR Candidate Review and Discovery Report
 **Workflow Mode:** YOLO
 **Granularity:** Standard
 **Execution:** Parallel where workstreams are independent
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 2 guided scan intake UAT passed 6/6 on Android; next project step is Phase 3 planning when ready, while iOS smoke remains environment-dependent.
+**Current focus:** Phase 3 OCR candidate review context captured; next step is Phase 3 UI design contract before planning/execution.
 
 ## Phase Status
 
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
-| 3. OCR Candidate Review and Discovery Report | Pending | 0% |
+| 3. OCR Candidate Review and Discovery Report | Context Captured | 03-CONTEXT.md and 03-DISCUSSION-LOG.md created; UI design contract needed before planning |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-plan-phase 3` when ready; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-ui-phase 3` next to create the Phase 3 UI design contract, then rerun `$gsd-plan-phase 3`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -69,3 +69,4 @@ Run `$gsd-plan-phase 3` when ready; update/reinstall Xcode/CoreSimulator separat
 - [Phase 2]: UAT Test 4 duplicate gap diagnosed — Repeated default source selection currently shows `확인한 항목 1개` instead of duplicate skip feedback because the demo picker generates a new source token per pick; gap closure plan 02-05 is ready.
 - [Phase 2]: UAT Test 4 duplicate gap fixed — Default demo picker now uses stable source tokens and duplicate-only selections remain visible long enough to show skip feedback; final automated verification passed with 37 Flutter tests.
 - [Phase 2]: Phase 2 UAT passed — Guided scan intake passed 6/6 conversational UAT checks on Android emulator; remaining iOS launch verification is an environment blocker, not app code.
+- [Phase 3]: Phase 3 context captured — OCR candidate review decisions are recorded in .planning/phases/03-ocr-candidate-review-and-discovery-report/03-CONTEXT.md
