@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 3 — OCR Candidate Review and Discovery Report
-status: phase-3-ui-spec-ready
-last_updated: "2026-05-30T12:59:30.929Z"
+status: phase-3-planned
+last_updated: "2026-05-31T08:32:06.617Z"
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 8
+  total_plans: 12
   completed_plans: 8
   percent: 28
 ---
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3 UI design contract approved; next step is Phase 3 research and executable planning via `$gsd-plan-phase 3`.
+**Current focus:** Phase 3 research, pattern map, validation strategy, and four executable plans are approved; next step is implementation via `$gsd-execute-phase 3`.
 
 ## Phase Status
 
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
-| 3. OCR Candidate Review and Discovery Report | UI-SPEC Ready | 03-CONTEXT.md, 03-DISCUSSION-LOG.md, and 03-UI-SPEC.md created; executable planning is next |
+| 3. OCR Candidate Review and Discovery Report | Planned | 4/4 executable plans ready; next `$gsd-execute-phase 3` |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-plan-phase 3` next to create the Phase 3 research and executable plans; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-execute-phase 3` next to implement the Phase 3 OCR candidate review and discovery report; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -71,3 +71,4 @@ Run `$gsd-plan-phase 3` next to create the Phase 3 research and executable plans
 - [Phase 2]: Phase 2 UAT passed — Guided scan intake passed 6/6 conversational UAT checks on Android emulator; remaining iOS launch verification is an environment blocker, not app code.
 - [Phase 3]: Phase 3 context captured — OCR candidate review decisions are recorded in .planning/phases/03-ocr-candidate-review-and-discovery-report/03-CONTEXT.md
 - [Phase 3]: Phase 3 UI-SPEC approved — Discovery report, one-by-one candidate review, expiry choice chips, full-screen image viewer, and contextual manual registration are locked in .planning/phases/03-ocr-candidate-review-and-discovery-report/03-UI-SPEC.md
+- [Phase 3]: Phase 3 execution plan approved — Research, pattern map, validation strategy, and plans 03-01 through 03-04 are ready for execution.
