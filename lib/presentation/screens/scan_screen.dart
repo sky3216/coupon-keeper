@@ -4,19 +4,33 @@ import 'package:flutter/material.dart';
 
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
+import '../../application/pass_candidate_parser.dart';
+import '../../data/in_memory_pass_repository.dart';
 import '../../data/in_memory_scan_fingerprint_cache.dart';
+import '../../domain/ocr_text.dart';
 import '../../domain/scan_source.dart';
+import '../../platform/fake_image_copy_store.dart';
+import '../../platform/fake_ocr_text_recognizer.dart';
 import '../../platform/phase_two_demo_scan_source_picker.dart';
 import '../theme/app_theme.dart';
+import '../widgets/candidate_review_form.dart';
+import '../widgets/discovery_report.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/manual_registration_form.dart';
 import '../widgets/scan_progress_summary.dart';
 import '../widgets/scan_source_choice.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({this.controller, this.discoveryController, super.key});
+  const ScanScreen({
+    this.controller,
+    this.discoveryController,
+    this.onWalletSelected,
+    super.key,
+  });
 
   final GuidedScanController? controller;
   final CandidateDiscoveryController? discoveryController;
+  final VoidCallback? onWalletSelected;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -25,6 +39,8 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   late GuidedScanController _controller;
   late bool _ownsController;
+  CandidateDiscoveryController? _discoveryController;
+  late bool _ownsDiscoveryController;
   StreamSubscription<GuidedScanState>? _stateSubscription;
   late GuidedScanState _state;
 
@@ -51,20 +67,33 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void _attachController(GuidedScanController? controller) {
+    _ownsDiscoveryController = widget.discoveryController == null;
+    _discoveryController = widget.discoveryController;
+    if (controller == null && _discoveryController == null) {
+      _discoveryController = _defaultDiscoveryController();
+    }
     _ownsController = controller == null;
     _controller =
         controller ??
         GuidedScanController(
           picker: const PhaseTwoDemoScanSourcePicker(),
           fingerprintCache: InMemoryScanFingerprintCache(),
-          processItem: (_) =>
-              Future<void>.delayed(const Duration(milliseconds: 800)),
+          processItem: (item) async {
+            await Future<void>.delayed(const Duration(milliseconds: 800));
+            await _discoveryController!.processItem(item);
+          },
           duplicateOnlyDelay: const Duration(milliseconds: 800),
         );
     _state = _controller.state;
     _stateSubscription = _controller.states.listen((state) {
       if (mounted) {
-        setState(() => _state = state);
+        setState(() {
+          _state = state;
+          if (state.status == GuidedScanStatus.completed &&
+              state.processedCount > 0) {
+            _discoveryController?.finishDiscovery();
+          }
+        });
       }
     });
   }
@@ -74,6 +103,9 @@ class _ScanScreenState extends State<ScanScreen> {
     _stateSubscription = null;
     if (_ownsController) {
       _controller.dispose();
+    }
+    if (_ownsDiscoveryController) {
+      _discoveryController = null;
     }
   }
 
@@ -143,6 +175,9 @@ class _ScanScreenState extends State<ScanScreen> {
           onSecondaryAction: _controller.reset,
         );
       case GuidedScanStatus.completed:
+        if (_state.processedCount > 0 && _discoveryController != null) {
+          return _buildDiscovery();
+        }
         return _ScanSummary(
           heading: '선택한 항목 확인을 마쳤어요',
           body: '다음 단계에서 쿠폰 후보를 확인할 수 있게 준비합니다.',
@@ -151,9 +186,193 @@ class _ScanScreenState extends State<ScanScreen> {
           onPrimaryAction: null,
           primaryActionSemanticLabel: '후보 확인 화면은 다음 단계에서 연결됩니다',
           secondaryActionLabel: '다시 선택',
-          onSecondaryAction: _controller.reset,
+          onSecondaryAction: _reset,
         );
     }
+  }
+
+  Widget _buildDiscovery() {
+    final discovery = _discoveryController!;
+    switch (discovery.status) {
+      case CandidateDiscoveryStatus.collecting:
+        return const SizedBox.shrink();
+      case CandidateDiscoveryStatus.reportReady:
+        return DiscoveryReportView(
+          report: discovery.report,
+          onBeginReview: () {
+            setState(discovery.beginReview);
+          },
+          onReset: _reset,
+        );
+      case CandidateDiscoveryStatus.reviewing:
+        final candidate = discovery.currentCandidate!;
+        return CandidateReviewForm(
+          key: ValueKey(candidate.source.fingerprintInput),
+          candidate: candidate,
+          currentIndex: discovery.currentIndex + 1,
+          totalCount: discovery.candidates.length,
+          onChanged:
+              ({
+                required title,
+                required brand,
+                required estimatedValue,
+                required confirmedExpiry,
+              }) {
+                setState(() {
+                  discovery.updateCurrentCandidate(
+                    title: title,
+                    brand: brand,
+                    estimatedValue: estimatedValue,
+                    confirmedExpiry: confirmedExpiry,
+                  );
+                });
+              },
+          onSave: () async {
+            await discovery.saveCurrentCandidate();
+            if (mounted) {
+              setState(() {});
+            }
+          },
+          onReject: () {
+            setState(discovery.rejectCurrentCandidate);
+          },
+          onManualRegistration: () {
+            setState(discovery.beginManualRegistration);
+          },
+        );
+      case CandidateDiscoveryStatus.noCandidates:
+        return EmptyState(
+          icon: Icons.search_off_outlined,
+          heading: '이번 선택에서는 쿠폰 후보를 찾지 못했어요',
+          body: '다른 사진을 선택하거나, 선택한 이미지로 직접 등록할 수 있어요.',
+          primaryActionLabel: '직접 등록',
+          onPrimaryAction: () {
+            setState(discovery.beginManualRegistration);
+          },
+          secondaryActionLabel: '다시 선택',
+          onSecondaryAction: _reset,
+        );
+      case CandidateDiscoveryStatus.manualRegistration:
+        return ManualRegistrationForm(
+          source: discovery.manualSource!,
+          onSave:
+              ({
+                required title,
+                required brand,
+                required expiry,
+                estimatedValue,
+              }) async {
+                await discovery.saveManualRegistration(
+                  title: title,
+                  brand: brand,
+                  expiry: expiry,
+                  estimatedValue: estimatedValue,
+                );
+                if (mounted) {
+                  setState(() {});
+                }
+              },
+          onCancel: () {
+            setState(discovery.cancelManualRegistration);
+          },
+        );
+      case CandidateDiscoveryStatus.completed:
+        return _BatchCompletion(
+          savedCount: discovery.savedCount,
+          rejectedCount: discovery.rejectedCount,
+          onWalletSelected: widget.onWalletSelected,
+          onReset: _reset,
+        );
+    }
+  }
+
+  void _reset() {
+    _discoveryController?.reset();
+    _controller.reset();
+  }
+}
+
+CandidateDiscoveryController _defaultDiscoveryController() {
+  var nextId = 0;
+  return CandidateDiscoveryController(
+    recognizer: FakeOcrTextRecognizer.success(
+      const OcrTextResult(
+        fullText: '선택한 쿠폰 이미지\n2026.06.30',
+        blocks: [
+          OcrTextBlock(
+            text: '선택한 쿠폰 이미지\n2026.06.30',
+            bounds: OcrBounds(left: 0, top: 0, width: 1, height: 1),
+            confidence: 0.7,
+            lines: [
+              OcrTextLine(
+                text: '선택한 쿠폰 이미지',
+                bounds: OcrBounds(left: 0, top: 0, width: 1, height: 0.2),
+                confidence: 0.7,
+              ),
+              OcrTextLine(
+                text: '2026.06.30',
+                bounds: OcrBounds(left: 0, top: 0.3, width: 1, height: 0.2),
+                confidence: 0.7,
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+    parser: const PassCandidateParser(),
+    imageCopyStore: FakeImageCopyStore(),
+    passRepository: InMemoryPassRepository(),
+    now: DateTime.now,
+    nextId: () => 'demo-pass-${nextId++}',
+  );
+}
+
+class _BatchCompletion extends StatelessWidget {
+  const _BatchCompletion({
+    required this.savedCount,
+    required this.rejectedCount,
+    required this.onWalletSelected,
+    required this.onReset,
+  });
+
+  final int savedCount;
+  final int rejectedCount;
+  final VoidCallback? onWalletSelected;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(
+            Icons.check_circle_outline,
+            size: 40,
+            color: AppTheme.accent,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            '쿠폰 확인을 마쳤어요',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          _SummaryRow(label: '저장한 쿠폰 $savedCount개'),
+          if (rejectedCount > 0) _SummaryRow(label: '건너뛴 후보 $rejectedCount개'),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: savedCount > 0 ? onWalletSelected : onReset,
+            child: Text(savedCount > 0 ? 'Wallet에서 보기' : '다시 스캔'),
+          ),
+          if (savedCount > 0) ...[
+            const SizedBox(height: 8),
+            TextButton(onPressed: onReset, child: const Text('다시 스캔')),
+          ],
+        ],
+      ),
+    );
   }
 }
 

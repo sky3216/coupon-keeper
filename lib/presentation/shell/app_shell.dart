@@ -36,6 +36,7 @@ class _AppShellState extends State<AppShell> {
             ScanScreen(
               controller: widget.scanController,
               discoveryController: widget.discoveryController,
+              onWalletSelected: () => setState(() => _selectedIndex = 1),
             ),
           ],
         ),
