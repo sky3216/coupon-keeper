@@ -44,6 +44,7 @@ class CandidateDiscoveryController {
   int _savedCount = 0;
   int _rejectedCount = 0;
   ScanItem? _manualSource;
+  bool _manualReplacesCurrentCandidate = false;
 
   CandidateDiscoveryStatus get status => _status;
   UnmodifiableListView<PassCandidate> get candidates =>
@@ -130,11 +131,14 @@ class CandidateDiscoveryController {
       throw StateError('Manual registration requires a selected image.');
     }
     _manualSource = resolvedSource;
+    _manualReplacesCurrentCandidate =
+        source == null && currentCandidate != null;
     _status = CandidateDiscoveryStatus.manualRegistration;
   }
 
   void cancelManualRegistration() {
     _manualSource = null;
+    _manualReplacesCurrentCandidate = false;
     _status = _candidates.isEmpty
         ? CandidateDiscoveryStatus.noCandidates
         : CandidateDiscoveryStatus.reviewing;
@@ -173,7 +177,10 @@ class CandidateDiscoveryController {
     );
     _manualSource = null;
     _savedCount += 1;
-    if (_candidates.isEmpty || _currentIndex >= _candidates.length) {
+    if (_manualReplacesCurrentCandidate) {
+      _manualReplacesCurrentCandidate = false;
+      _advance();
+    } else if (_candidates.isEmpty || _currentIndex >= _candidates.length) {
       _status = CandidateDiscoveryStatus.completed;
     } else {
       _status = CandidateDiscoveryStatus.reviewing;
@@ -188,6 +195,7 @@ class CandidateDiscoveryController {
     _savedCount = 0;
     _rejectedCount = 0;
     _manualSource = null;
+    _manualReplacesCurrentCandidate = false;
   }
 
   Future<void> _save({

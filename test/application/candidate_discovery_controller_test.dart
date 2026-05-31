@@ -126,6 +126,27 @@ void main() {
       expect(fixture.controller.status, CandidateDiscoveryStatus.completed);
     },
   );
+
+  test(
+    'manual registration from review handles the current candidate',
+    () async {
+      final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
+      await fixture.controller.processItem(_item);
+      fixture.controller.finishDiscovery();
+      fixture.controller.beginReview();
+      fixture.controller.beginManualRegistration();
+
+      await fixture.controller.saveManualRegistration(
+        title: '직접 보정한 쿠폰',
+        brand: null,
+        expiry: DateTime(2026, 6, 30),
+      );
+
+      expect(fixture.controller.status, CandidateDiscoveryStatus.completed);
+      expect(fixture.controller.currentCandidate, isNull);
+      expect(await fixture.repository.listAll(), hasLength(1));
+    },
+  );
 }
 
 _Fixture _fixture(OcrTextResult result) {
