@@ -49,5 +49,23 @@ void main() {
         throwsArgumentError,
       );
     });
+
+    test('keeps transient platform source ref out of fingerprint input', () {
+      final first = ScanItem(
+        sourceType: ScanSourceType.photos,
+        sourceToken: 'ph-asset-123',
+        displayName: 'coupon.jpg',
+        platformSourceRef: 'content://picker/one',
+      );
+      final second = ScanItem(
+        sourceType: ScanSourceType.photos,
+        sourceToken: 'ph-asset-123',
+        displayName: 'coupon.jpg',
+        platformSourceRef: 'content://picker/two',
+      );
+
+      expect(first.fingerprintInput, second.fingerprintInput);
+      expect(first.fingerprintInput, isNot(contains('content://')));
+    });
   });
 }

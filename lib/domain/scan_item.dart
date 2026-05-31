@@ -5,6 +5,7 @@ class ScanItem {
     required this.sourceType,
     required this.sourceToken,
     required this.displayName,
+    this.platformSourceRef,
     this.byteSize,
     this.modifiedAt,
   }) {
@@ -20,6 +21,7 @@ class ScanItem {
   final ScanSourceType sourceType;
   final String sourceToken;
   final String displayName;
+  final String? platformSourceRef;
   final int? byteSize;
   final DateTime? modifiedAt;
 
