@@ -88,10 +88,11 @@ List<ExpiryCandidate> _expiryCandidates(Iterable<OcrTextLine> lines) {
 
 List<ValueCandidate> _valueCandidates(Iterable<OcrTextLine> lines) {
   final values = <int, ValueCandidate>{};
-  final pattern = RegExp(r'(?:₩\s*)?(\d[\d,]*)\s*원');
+  final pattern = RegExp(r'(?:₩\s*(\d[\d,]*)|(\d[\d,]*)\s*원)');
   for (final line in lines) {
     for (final match in pattern.allMatches(line.text)) {
-      final value = int.tryParse(match.group(1)!.replaceAll(',', ''));
+      final rawValue = match.group(1) ?? match.group(2);
+      final value = int.tryParse(rawValue!.replaceAll(',', ''));
       if (value != null) {
         values.putIfAbsent(
           value,
@@ -134,7 +135,7 @@ OcrTextLine? _brand(List<OcrTextLine> lines) {
 bool _isMachineReadable(String value) {
   return RegExp(r'\d{4}[./-]\d{1,2}[./-]\d{1,2}').hasMatch(value) ||
       RegExp(r'\d{4}년\s*\d{1,2}월\s*\d{1,2}일').hasMatch(value) ||
-      RegExp(r'(?:₩\s*)?\d[\d,]*\s*원').hasMatch(value) ||
+      RegExp(r'(?:₩\s*\d[\d,]*|\d[\d,]*\s*원)').hasMatch(value) ||
       RegExp(r'(?:\d[\s-]*){8,}').hasMatch(value);
 }
 

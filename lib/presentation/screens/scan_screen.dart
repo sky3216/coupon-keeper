@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../application/guided_scan_controller.dart';
+import '../../application/candidate_discovery_controller.dart';
 import '../../data/in_memory_scan_fingerprint_cache.dart';
 import '../../domain/scan_source.dart';
 import '../../platform/phase_two_demo_scan_source_picker.dart';
@@ -12,9 +13,10 @@ import '../widgets/scan_progress_summary.dart';
 import '../widgets/scan_source_choice.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({this.controller, super.key});
+  const ScanScreen({this.controller, this.discoveryController, super.key});
 
   final GuidedScanController? controller;
+  final CandidateDiscoveryController? discoveryController;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();

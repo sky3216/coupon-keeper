@@ -14,6 +14,7 @@ class PhaseTwoDemoScanSourcePicker implements ScanSourcePicker {
     return ScanItem(
       sourceType: sourceType,
       sourceToken: 'phase-two-demo-${sourceType.name}',
+      platformSourceRef: 'fixture://phase-two-demo-${sourceType.name}',
       displayName: sourceType == ScanSourceType.photos
           ? 'selected-photo.jpg'
           : 'selected-download.jpg',

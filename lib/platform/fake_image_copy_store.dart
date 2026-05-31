@@ -4,6 +4,8 @@ class FakeImageCopyStore implements ImageCopyStore {
   final Map<String, String> _copies = {};
   int _nextId = 0;
 
+  Map<String, String> get copies => Map.unmodifiable(_copies);
+
   @override
   Future<String> copyIntoAppStorage(String sourceRef, {String? id}) async {
     final copyId = id ?? 'copy-${_nextId++}';
