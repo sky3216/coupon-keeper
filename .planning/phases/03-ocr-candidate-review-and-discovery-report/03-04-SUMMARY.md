@@ -67,11 +67,11 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- `flutter analyze`
-- `flutter test` (64 tests)
-- `flutter build apk --debug`
-- `adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-debug.apk`
-- `adb -s emulator-5554 shell am start -n com.example.coupon_keeper/.MainActivity`
+- flutter analyze
+- flutter test (65 tests)
+- flutter build apk --debug
+- adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-debug.apk
+- adb -s emulator-5554 shell am start -n com.example.coupon_keeper/.MainActivity
 
 ---
 *Phase: 03-ocr-candidate-review-and-discovery-report*

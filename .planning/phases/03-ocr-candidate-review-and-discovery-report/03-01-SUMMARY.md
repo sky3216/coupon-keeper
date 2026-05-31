@@ -82,8 +82,8 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- `flutter test test/domain/scan_item_test.dart test/domain/ocr_text_test.dart test/domain/pass_candidate_test.dart test/application/pass_candidate_parser_test.dart test/domain/discovery_report_test.dart`
-- `flutter analyze`
+- flutter test test/domain/scan_item_test.dart test/domain/ocr_text_test.dart test/domain/pass_candidate_test.dart test/application/pass_candidate_parser_test.dart test/domain/discovery_report_test.dart
+- flutter analyze
 
 ---
 *Phase: 03-ocr-candidate-review-and-discovery-report*

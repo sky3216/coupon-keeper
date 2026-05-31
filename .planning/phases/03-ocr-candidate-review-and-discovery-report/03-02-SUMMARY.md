@@ -60,8 +60,8 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- `flutter test test/application/candidate_discovery_controller_test.dart test/application/guided_scan_controller_test.dart test/presentation/app_shell_test.dart`
-- `flutter analyze`
+- flutter test test/application/candidate_discovery_controller_test.dart test/application/guided_scan_controller_test.dart test/presentation/app_shell_test.dart
+- flutter analyze
 
 ---
 *Phase: 03-ocr-candidate-review-and-discovery-report*

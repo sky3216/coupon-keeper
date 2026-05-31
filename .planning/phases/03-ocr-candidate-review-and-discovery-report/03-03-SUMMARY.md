@@ -60,10 +60,10 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- `flutter test test/platform/method_channel_ocr_text_recognizer_test.dart`
-- `flutter build apk --debug`
-- `rg -n "VNRecognizeTextRequest|FlutterMethodChannel|coupon_keeper/ocr" ios/Runner/AppDelegate.swift`
-- `flutter analyze`
+- flutter test test/platform/method_channel_ocr_text_recognizer_test.dart
+- flutter build apk --debug
+- rg -n "VNRecognizeTextRequest|FlutterMethodChannel|coupon_keeper/ocr" ios/Runner/AppDelegate.swift
+- flutter analyze
 
 ---
 *Phase: 03-ocr-candidate-review-and-discovery-report*
