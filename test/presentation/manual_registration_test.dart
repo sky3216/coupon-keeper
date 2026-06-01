@@ -57,6 +57,63 @@ void main() {
     expect(find.text('쿠폰 확인을 마쳤어요'), findsOneWidget);
     expect((await repository.listAll()).single.title, '직접 등록 쿠폰');
   });
+
+  testWidgets(
+    'keeps manual recovery reachable on 320x568 and cancel returns',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      final discovery = CandidateDiscoveryController(
+        recognizer: FakeOcrTextRecognizer.empty(),
+        parser: const PassCandidateParser(),
+        imageCopyStore: FakeImageCopyStore(),
+        passRepository: InMemoryPassRepository(),
+        now: () => DateTime(2026, 5, 31),
+        nextId: () => 'manual-small',
+      );
+      final guided = GuidedScanController(
+        picker: FakeScanSourcePicker.downloads([_item]),
+        fingerprintCache: InMemoryScanFingerprintCache(),
+        processItem: discovery.processItem,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ScanScreen(
+              controller: guided,
+              discoveryController: discovery,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('다운로드/파일에서 찾기'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('직접 등록'));
+      await tester.pumpAndSettle();
+
+      final preview = find.bySemanticsLabel('선택한 쿠폰 이미지 확대해서 보기');
+      await tester.ensureVisible(preview);
+      expect(preview, findsOneWidget);
+      await tester.ensureVisible(find.text('취소'));
+      await tester.tap(find.text('취소'));
+      await tester.pumpAndSettle();
+      expect(find.text('이번 선택에서는 쿠폰 후보를 찾지 못했어요'), findsOneWidget);
+
+      await tester.tap(find.text('직접 등록'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.widgetWithText(TextField, '제목'), '작은 화면 쿠폰');
+      await tester.enterText(find.widgetWithText(TextField, '만료일'), '2026.06.30');
+      await tester.pump();
+      await tester.ensureVisible(find.text('쿠폰 저장'));
+      expect(find.text('쿠폰 저장'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 final _item = ScanItem(
