@@ -78,7 +78,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 - 후보 발견 세션과 네이티브 OCR 어댑터가 공통 계약을 사용할 수 있다.
-- `platformSourceRef`는 저장이나 fingerprint에 섞이지 않는 임시 값으로 고정됐다.
+- `platformSourceRef`는 OCR/image copy 입력과 저장된 원본 추적 metadata에만 사용하고 fingerprint에는 섞지 않는 값으로 고정됐다.
 
 ## Self-Check: PASSED
 

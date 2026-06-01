@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 3 — OCR Candidate Review and Discovery Report
-status: phase-3-uat-pass-awaiting-security
-last_updated: "2026-06-01T14:36:55Z"
+status: phase-3-security-pass-awaiting-validation
+last_updated: "2026-06-01T14:45:23Z"
 progress:
   total_phases: 7
   completed_phases: 2
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3 Android conversational UAT passed 7/7; next required step is security review via `$gsd-secure-phase 3`.
+**Current focus:** Phase 3 Android UAT passed 7/7 and security verification closed 12/12 planned threats; next step is coverage validation via `$gsd-validate-phase 3`.
 
 ## Phase Status
 
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 |-------|--------|----------|
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
-| 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Next, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; `flutter analyze` passed; `flutter test` passed 65/65 |
+| 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Pass, Validation Next, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; security threats closed 12/12; `flutter analyze` passed; `flutter test` passed 65/65 |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-secure-phase 3` next before advancing; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-validate-phase 3` next to validate test coverage; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -74,3 +74,4 @@ Run `$gsd-secure-phase 3` next before advancing; update/reinstall Xcode/CoreSimu
 - [Phase 3]: Phase 3 execution plan approved — Research, pattern map, validation strategy, and plans 03-01 through 03-04 are ready for execution.
 - [Phase 3]: Phase 3 implementation complete — OCR candidate discovery, on-device OCR adapters, discovery report, one-by-one review, direct registration, and batch completion are implemented; automated verification passed with 65 Flutter tests and an Android debug APK launch.
 - [Phase 3]: Phase 3 Android UAT passed — Discovery report, one-by-one review, full-screen image viewer, candidate save, reject, manual registration, and no-candidate recovery evidence passed 7/7 checks; iOS smoke remains an environment follow-up.
+- [Phase 3]: Phase 3 security verified — All 12 plan-time threats are mitigated with `threats_open: 0`; OCR remains selected-source-only and on-device, candidates remain review-only, and confirmed/manual saves preserve app-internal image copies.
