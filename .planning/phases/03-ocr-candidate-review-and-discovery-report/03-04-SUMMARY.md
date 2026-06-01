@@ -68,7 +68,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - flutter analyze
-- flutter test (65 tests)
+- flutter test (67 tests)
 - flutter build apk --debug
 - adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-debug.apk
 - adb -s emulator-5554 shell am start -n com.example.coupon_keeper/.MainActivity
