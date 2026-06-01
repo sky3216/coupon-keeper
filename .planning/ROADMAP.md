@@ -54,6 +54,8 @@
 
 **Requirements:** SCAN-05, OCR-01, OCR-02, OCR-03, OCR-04, OCR-05, OCR-06
 
+**Status:** Android conversational UAT passed (7/7); security verified (`threats_open: 0`); validation pending; iOS environment follow-up remains.
+
 **Success Criteria:**
 1. Native OCR adapter returns normalized text blocks on iOS and Android, with test doubles available.
 2. Parser extracts likely expiry, value, brand, and barcode candidates with confidence.

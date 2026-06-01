@@ -24,16 +24,16 @@
 - [x] **SCAN-02**: User can choose photos or downloadable files/folders without first-launch broad library scanning.
 - [x] **SCAN-03**: User sees batch scan progress, live candidate count, and a cancel option.
 - [x] **SCAN-04**: App skips already-scanned files using fingerprints.
-- [ ] **SCAN-05**: User sees a first scan discovery report before reviewing individual candidates.
+- [x] **SCAN-05**: User sees a first scan discovery report before reviewing individual candidates.
 
 ### OCR and Candidate Confirmation
 
-- [ ] **OCR-01**: App extracts text from selected images using iOS Vision or Android ML Kit.
-- [ ] **OCR-02**: App parses likely expiry dates, values, brands, and barcode candidates from OCR text.
-- [ ] **OCR-03**: User sees uncertain OCR results as candidates, not as automatically saved passes.
-- [ ] **OCR-04**: User can edit expiry, value, title, and brand before saving.
-- [ ] **OCR-05**: User can reject false positive candidates.
-- [ ] **OCR-06**: User can manually register a pass when OCR finds nothing.
+- [x] **OCR-01**: App extracts text from selected images using iOS Vision or Android ML Kit.
+- [x] **OCR-02**: App parses likely expiry dates, values, brands, and barcode candidates from OCR text.
+- [x] **OCR-03**: User sees uncertain OCR results as candidates, not as automatically saved passes.
+- [x] **OCR-04**: User can edit expiry, value, title, and brand before saving.
+- [x] **OCR-05**: User can reject false positive candidates.
+- [x] **OCR-06**: User can manually register a pass when OCR finds nothing.
 
 ### Wallet and Pass Detail
 
@@ -122,13 +122,13 @@
 | SCAN-02 | Phase 2 | Complete |
 | SCAN-03 | Phase 2 | Complete |
 | SCAN-04 | Phase 2 | Complete |
-| SCAN-05 | Phase 3 | Pending |
-| OCR-01 | Phase 3 | Pending |
-| OCR-02 | Phase 3 | Pending |
-| OCR-03 | Phase 3 | Pending |
-| OCR-04 | Phase 3 | Pending |
-| OCR-05 | Phase 3 | Pending |
-| OCR-06 | Phase 3 | Pending |
+| SCAN-05 | Phase 3 | Complete |
+| OCR-01 | Phase 3 | Complete |
+| OCR-02 | Phase 3 | Complete |
+| OCR-03 | Phase 3 | Complete |
+| OCR-04 | Phase 3 | Complete |
+| OCR-05 | Phase 3 | Complete |
+| OCR-06 | Phase 3 | Complete |
 | WALL-01 | Phase 4 | Pending |
 | WALL-02 | Phase 4 | Pending |
 | WALL-03 | Phase 4 | Pending |

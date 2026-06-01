@@ -94,7 +94,7 @@ Add a review-only `PassCandidate` that is not a saved `Pass`.
 
 `PassCandidate` can answer `isSaveReady`: title or brand is present and expiry was confirmed.
 
-`ScanItem.sourceToken`은 fingerprint용 안정 토큰으로 유지한다. OCR과 image copy가 원본에 접근할 때는 별도의 transient `platformSourceRef`를 사용한다. Dart는 이 값을 저장하거나 fingerprint에 섞지 않고 platform adapter에 다시 전달만 한다. Android는 선택된 `content://` reference를 해석할 수 있고, iOS는 picker adapter가 만든 opaque reference를 native layer에서 해석할 수 있다.
+`ScanItem.sourceToken`은 fingerprint용 안정 토큰으로 유지한다. OCR과 image copy가 원본에 접근할 때는 별도의 transient `platformSourceRef`를 사용한다. Dart는 이 값을 fingerprint에 섞지 않고 platform adapter에 전달하며, 사용자가 저장을 확정한 Pass에서는 Phase 1 원본 추적 계약에 따라 `PassSourceMetadata.originalUri`로 보존한다. Android는 선택된 `content://` reference를 해석할 수 있고, iOS는 picker adapter가 만든 opaque reference를 native layer에서 해석할 수 있다.
 
 ### Parser Rules
 

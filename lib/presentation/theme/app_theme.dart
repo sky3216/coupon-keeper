@@ -13,6 +13,7 @@ class AppTheme {
   static const Color danger = Color(0xFFB3261E);
   static const Color dangerSoft = Color(0xFFFCE8E6);
   static const Color neutralChip = Color(0xFFEEEDE7);
+  static const Color viewerBackground = Color(0xFF171717);
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(

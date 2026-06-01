@@ -30,11 +30,9 @@ void main() {
 
     await tester.pump(const Duration(milliseconds: 800));
     await tester.pumpAndSettle();
-    expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
-    expect(find.textContaining('발견'), findsNothing);
-    expect(find.textContaining('저장'), findsNothing);
-    expect(find.textContaining('수정'), findsNothing);
-    expect(find.textContaining('원 보호'), findsNothing);
+    expect(find.text('놓칠 수 있는 쿠폰을 찾았어요'), findsOneWidget);
+    expect(find.text('찾은 후보 1개'), findsOneWidget);
+    expect(find.text('후보 검토 시작'), findsOneWidget);
   });
 
   testWidgets('default duplicate selection shows skip feedback', (
@@ -49,8 +47,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
     await tester.pumpAndSettle();
 
-    expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
-    expect(find.text('확인한 항목 1개'), findsOneWidget);
+    expect(find.text('놓칠 수 있는 쿠폰을 찾았어요'), findsOneWidget);
+    expect(find.text('찾은 후보 1개'), findsOneWidget);
 
     await tester.tap(find.text('다시 선택'));
     await tester.pumpAndSettle();
@@ -67,10 +65,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('선택한 항목 확인을 마쳤어요'), findsOneWidget);
     expect(find.text('건너뛴 항목 1개'), findsOneWidget);
-    expect(find.textContaining('발견'), findsNothing);
-    expect(find.textContaining('저장'), findsNothing);
-    expect(find.textContaining('수정'), findsNothing);
-    expect(find.textContaining('원 보호'), findsNothing);
+    expect(find.textContaining('보호할 수 있는 금액'), findsNothing);
   });
 
   testWidgets(
@@ -135,6 +130,7 @@ void main() {
         RegExp(r'firebase', caseSensitive: false),
         RegExp(r'전체\s*사진첩\s*스캔'),
         RegExp(r'자동\s*업로드'),
+        RegExp(r'자동\s*저장'),
         RegExp(r'cloud', caseSensitive: false),
         RegExp(r'upload', caseSensitive: false),
       ];
