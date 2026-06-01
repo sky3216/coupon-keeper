@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: Phase 3 — OCR Candidate Review and Discovery Report
-status: phase-3-validated-awaiting-milestone-audit
-last_updated: "2026-06-01T14:50:38Z"
+status: milestone-v1-audit-gaps-found
+last_updated: "2026-06-01T15:13:12Z"
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
   completed_plans: 12
-  percent: 28
+  percent: 42
 ---
 
 # State: Coupon Keeper
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3 Android UAT passed 7/7, security verification closed 12/12 planned threats, and Nyquist validation covers all 7 requirements; next step is milestone audit via `$gsd-audit-milestone`.
+**Current focus:** v1.0 milestone audit found the expected Phase 4~7 pending scope plus a Phase 1~3 production wiring gap: the default Scan path still uses demo picker, fake OCR, memory repository, and fake image copy storage. Insert and execute a Phase 3.1 closure before Phase 4.
 
 ## Phase Status
 
@@ -57,7 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-audit-milestone` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-phase --insert 3.1 "Close gap: production local adapter wiring"` next, then continue with `$gsd-discuss-phase 3.1`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -76,3 +76,4 @@ Run `$gsd-audit-milestone` next; update/reinstall Xcode/CoreSimulator separately
 - [Phase 3]: Phase 3 Android UAT passed — Discovery report, one-by-one review, full-screen image viewer, candidate save, reject, manual registration, and no-candidate recovery evidence passed 7/7 checks; iOS smoke remains an environment follow-up.
 - [Phase 3]: Phase 3 security verified — All 12 plan-time threats are mitigated with `threats_open: 0`; OCR remains selected-source-only and on-device, candidates remain review-only, and confirmed/manual saves preserve app-internal image copies.
 - [Phase 3]: Phase 3 Nyquist validation verified — All 13 tasks and 7 requirements have automated evidence; added 320x568 reachability tests for discovery report actions and no-candidate manual registration controls; full suite passed 67/67.
+- [Milestone v1.0]: Early milestone audit found gaps — Phase 4~7 remain planned work, and the default Phase 1~3 Scan path still needs production local picker, MethodChannel OCR, SQLite repository, and app-internal image copy wiring before Phase 4.
