@@ -1,7 +1,7 @@
 ---
 phase: 03-ocr-candidate-review-and-discovery-report
-status: human_needed
-verified: 2026-05-31
+status: passed-with-environment-followup
+verified: 2026-06-01
 score: 5/5
 ---
 
@@ -32,11 +32,12 @@ score: 5/5
 | OCR-03, OCR-04, OCR-05 | review-only candidate model, edit/save/reject tests | passed |
 | OCR-06 | no-candidate direct registration tests | passed |
 
-## Human Verification Needed
+## Human Verification Result
 
-1. Android에서 Scan 탭의 발견 리포트, 후보 검토, 날짜 선택, 저장, 거절 화면을 눈으로 확인한다.
-2. Android에서 OCR 후보 없음 화면의 `직접 등록` 진입과 저장 완료 화면을 확인한다.
-3. Xcode/CoreSimulator 복구 후 iOS simulator에서 Vision OCR 채널 smoke를 실행한다.
+1. Android에서 Scan 탭의 발견 리포트, 후보 검토, 날짜 선택, 저장, 거절 화면을 눈으로 확인했다.
+2. Android에서 검토 중 직접 등록, 취소 복귀, 저장 완료를 눈으로 확인했다.
+3. OCR 후보 없음 화면의 `직접 등록` 진입과 저장 완료는 기본 데모 앱에서 유도할 수 없어 관련 위젯 테스트 8/8 통과로 확인했다.
+4. Xcode/CoreSimulator 복구 후 iOS simulator에서 Vision OCR 채널 smoke를 실행한다.
 
 ## Known Environment Blocker
 
@@ -44,4 +45,4 @@ iOS simulator는 macOS 26.5와 Xcode 16.1 환경에서 `AssetCatalogSimulatorAge
 
 ## Verdict
 
-자동 검증은 통과했다. Android conversational UAT를 위해 `$gsd-verify-work 3`을 실행한다.
+자동 검증과 Android conversational UAT 7/7이 통과했다. iOS simulator smoke는 기존 Xcode/CoreSimulator 환경 blocker 복구 후 실행한다.
