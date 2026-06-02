@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: "Phase 03.1 — Close gap: production local adapter wiring"
-status: phase-3.1-context-ready-for-planning
-last_updated: "2026-06-02T14:34:39.029Z"
+status: phase-3.1-ready-to-execute
+last_updated: "2026-06-02T15:29:29.011Z"
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 12
+  total_plans: 15
   completed_plans: 13
   percent: 38
 ---
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3.1 context captured: wire production selected-source adapters, on-device OCR, SQLite persistence, and durable original-byte image copies before Phase 4.
+**Current focus:** Phase 3.1 planned: execute SQLite durability, native selected-source staging, failed-item-only retry, and production default composition before Phase 4.
 
 ## Phase Status
 
@@ -35,7 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
 | 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Pass, Nyquist Pass, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; security threats closed 12/12; 7/7 requirements covered; `flutter analyze` passed; `flutter test` passed 67/67 |
-| 3.1. Close gap: production local adapter wiring | Inserted, Awaiting Discussion | Production selected-source picker, MethodChannel OCR, SQLite persistence, and app-internal image copy wiring |
+| 3.1. Close gap: production local adapter wiring | Ready to Execute | 3 plans in 2 waves: SQLite durability, native selected-source staging, failed-item-only retry, and production composition |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
@@ -58,7 +58,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-plan-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-execute-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -79,6 +79,7 @@ Run `$gsd-plan-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately 
 - [Phase 3]: Phase 3 Nyquist validation verified — All 13 tasks and 7 requirements have automated evidence; added 320x568 reachability tests for discovery report actions and no-candidate manual registration controls; full suite passed 67/67.
 - [Milestone v1.0]: Early milestone audit found gaps — Phase 4~7 remain planned work, and the default Phase 1~3 Scan path still needs production local picker, MethodChannel OCR, SQLite repository, and app-internal image copy wiring before Phase 4.
 - [Phase 3.1]: Phase 3.1 production adapter context captured — Real photo multi-select, image-file multi-select plus explicit bounded folder selection, original-byte reusable app-internal copies, and failed-item-only retry are locked in 03.1-CONTEXT.md. — Close milestone audit wiring gaps before Phase 4 without expanding into Wallet UI or broad library scanning.
+- [Phase 3.1]: Phase 3.1 execution plan approved — 3 plans in 2 waves cover SQLite persistence, reusable original-byte app-internal copies, native photo/file/folder staging, failed-item-only retry, and real production default composition.
 
 ## Accumulated Context
 
