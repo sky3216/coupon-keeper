@@ -16,7 +16,7 @@ score: 5/5
 | Check | Result |
 |-------|--------|
 | `flutter analyze` | passed |
-| `flutter test` | passed, 65/65 |
+| `flutter test` | passed, 67/67 after Nyquist small-screen coverage |
 | `flutter build apk --debug` | passed |
 | Android install and launch on `emulator-5554` | passed |
 | iOS Vision channel source assertion | passed |

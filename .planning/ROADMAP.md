@@ -12,6 +12,7 @@
 | 1 | App Foundation and Local Pass Model | Launchable Flutter shell with core model, local storage contracts, and base UX states | SHELL-01..04, PASS-01..03 |
 | 2 | Guided Scan Intake | User can select photos/downloads and see a cancellable batch scan shell with duplicate skipping | SCAN-01..04 |
 | 3 | OCR Candidate Review and Discovery Report | User sees found coupon candidates, edits extracted fields, rejects false positives, and saves passes | SCAN-05, OCR-01..06 |
+| 03.1 | Close gap: production local adapter wiring | Default app path uses real selected-source pickers, on-device OCR, SQLite persistence, and durable image copies | PASS-01..02, SCAN-02..04, OCR-01, OCR-03, OCR-06 |
 | 4 | Wallet, Detail, and Cleanup Flow | User can browse, use, expand, mark used, and review cleanup candidates | WALL-01..06, CLEAN-01..04 |
 | 5 | Reminder Engine | Free and Pro reminder rules schedule and reconcile local notifications | REM-01..04 |
 | 6 | Pro Entitlement and Contextual Gates | User can purchase/restore Pro and sees upgrade prompts only in value moments | PRO-01..05 |
@@ -54,7 +55,7 @@
 
 **Requirements:** SCAN-05, OCR-01, OCR-02, OCR-03, OCR-04, OCR-05, OCR-06
 
-**Status:** Android conversational UAT passed (7/7); security verified (`threats_open: 0`); validation pending; iOS environment follow-up remains.
+**Status:** Android conversational UAT passed (7/7); security verified (`threats_open: 0`); Nyquist validation verified; iOS environment follow-up remains.
 
 **Success Criteria:**
 1. Native OCR adapter returns normalized text blocks on iOS and Android, with test doubles available.
@@ -62,6 +63,38 @@
 3. First scan report shows found count, expiring-soon count, possibly expired count, and estimated protected value when confident.
 4. User can edit candidate fields before saving.
 5. User can reject false positives or manually register a pass.
+
+### Phase 03.1: Close gap: production local adapter wiring (INSERTED)
+
+**Goal:** Replace the demo default Scan path with production local adapters before Phase 4.
+**Requirements:** PASS-01, PASS-02, SCAN-02, SCAN-03, SCAN-04, OCR-01, OCR-03, OCR-06
+**Depends on:** Phase 3
+**Plans:** 3 plans
+
+**Success Criteria:**
+1. User can select multiple photos, multiple image files, or one explicit folder through native system UI without broad-library scanning.
+2. Folder intake checks direct child images only, and OCR remains iOS Vision or Android ML Kit on device.
+3. Confirmed passes, fingerprints, and original-byte app-internal image copies survive app restart.
+4. Partial failures preserve successful candidates and retry failed items only.
+5. Production default composition uses real local adapters while deterministic fakes remain injectable in tests.
+
+Plans:
+
+**Wave 1**
+
+- [ ] `03.1-01-PLAN.md` — SQLite local persistence and durable original-byte image copies
+- [ ] `03.1-02-PLAN.md` — Native selected-source picker with bounded staging and retry handles
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] `03.1-03-PLAN.md` — Failed-item-only retry and production default composition
+
+Cross-cutting constraints:
+
+- Preserve explicit selected-source boundaries: no broad library scan and no recursive folder traversal.
+- Preserve explicit-save behavior: OCR candidates stay review-only until user confirmation.
+- Preserve local durability: successful save requires SQLite write plus reusable original-byte app-internal image copy.
+- Preserve testability: fake adapters remain injectable even after production defaults switch to real adapters.
 
 ### Phase 4: Wallet, Detail, and Cleanup Flow
 

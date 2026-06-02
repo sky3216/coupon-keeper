@@ -43,6 +43,32 @@ void main() {
     expect(find.text('금액은 후보를 확인하면서 정확하게 입력할 수 있어요.'), findsOneWidget);
     expect(find.textContaining('원'), findsNothing);
   });
+
+  testWidgets('keeps report actions reachable on 320x568', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      _app(
+        const DiscoveryReport(
+          candidateCount: 2,
+          expiringSoonCount: 1,
+          possiblyExpiredCount: 1,
+          protectedValue: 4500,
+        ),
+      ),
+    );
+
+    for (final label in ['후보 검토 시작', '다시 선택']) {
+      await tester.ensureVisible(find.text(label));
+      expect(find.text(label), findsOneWidget);
+    }
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Widget _app(DiscoveryReport report) {
