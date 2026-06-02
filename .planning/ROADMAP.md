@@ -63,6 +63,17 @@
 4. User can edit candidate fields before saving.
 5. User can reject false positives or manually register a pass.
 
+### Phase 03.1: Close gap: production local adapter wiring (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 3
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd:plan-phase 03.1 to break down)
+
 ### Phase 4: Wallet, Detail, and Cleanup Flow
 
 **Goal:** Make saved passes usable at the store and prevent used-source clutter without auto-deletion.

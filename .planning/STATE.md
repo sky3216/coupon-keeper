@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 3 — OCR Candidate Review and Discovery Report
-status: milestone-v1-audit-gaps-found
-last_updated: "2026-06-01T15:13:12Z"
+current_phase: "Phase 03.1 — Close gap: production local adapter wiring"
+status: phase-3.1-inserted-awaiting-discussion
+last_updated: "2026-06-02T02:29:11.481Z"
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 3
   total_plans: 12
   completed_plans: 12
-  percent: 42
+  percent: 38
 ---
 
 # State: Coupon Keeper
 
 **Initialized:** 2026-05-21
-**Current Phase:** Phase 3 — OCR Candidate Review and Discovery Report
+**Current Phase:** Phase 03.1 — Close gap: production local adapter wiring
 **Workflow Mode:** YOLO
 **Granularity:** Standard
 **Execution:** Parallel where workstreams are independent
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** v1.0 milestone audit found the expected Phase 4~7 pending scope plus a Phase 1~3 production wiring gap: the default Scan path still uses demo picker, fake OCR, memory repository, and fake image copy storage. Insert and execute a Phase 3.1 closure before Phase 4.
+**Current focus:** Phase 3.1 closes the production local adapter wiring gaps before Phase 4: real selected-source picker, MethodChannel OCR injection, SQLite persistence, and app-internal image copies.
 
 ## Phase Status
 
@@ -35,6 +35,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 1. App Foundation and Local Pass Model | UAT Pass, iOS Env Follow-up | 100% implementation, 6/6 UAT checks passed on Android |
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
 | 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Pass, Nyquist Pass, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; security threats closed 12/12; 7/7 requirements covered; `flutter analyze` passed; `flutter test` passed 67/67 |
+| 3.1. Close gap: production local adapter wiring | Inserted, Awaiting Discussion | Production selected-source picker, MethodChannel OCR, SQLite persistence, and app-internal image copy wiring |
 | 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
@@ -57,7 +58,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-phase --insert 3.1 "Close gap: production local adapter wiring"` next, then continue with `$gsd-discuss-phase 3.1`; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-discuss-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -77,3 +78,9 @@ Run `$gsd-phase --insert 3.1 "Close gap: production local adapter wiring"` next,
 - [Phase 3]: Phase 3 security verified — All 12 plan-time threats are mitigated with `threats_open: 0`; OCR remains selected-source-only and on-device, candidates remain review-only, and confirmed/manual saves preserve app-internal image copies.
 - [Phase 3]: Phase 3 Nyquist validation verified — All 13 tasks and 7 requirements have automated evidence; added 320x568 reachability tests for discovery report actions and no-candidate manual registration controls; full suite passed 67/67.
 - [Milestone v1.0]: Early milestone audit found gaps — Phase 4~7 remain planned work, and the default Phase 1~3 Scan path still needs production local picker, MethodChannel OCR, SQLite repository, and app-internal image copy wiring before Phase 4.
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 3: Close gap: production local adapter wiring (URGENT)
