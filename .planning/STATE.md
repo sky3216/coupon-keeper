@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: "Phase 03.1 — Close gap: production local adapter wiring"
-status: phase-3.1-inserted-awaiting-discussion
-last_updated: "2026-06-02T02:29:11.481Z"
+status: phase-3.1-context-ready-for-planning
+last_updated: "2026-06-02T14:34:39.029Z"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 12
-  completed_plans: 12
+  completed_plans: 13
   percent: 38
 ---
 
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3.1 closes the production local adapter wiring gaps before Phase 4: real selected-source picker, MethodChannel OCR injection, SQLite persistence, and app-internal image copies.
+**Current focus:** Phase 3.1 context captured: wire production selected-source adapters, on-device OCR, SQLite persistence, and durable original-byte image copies before Phase 4.
 
 ## Phase Status
 
@@ -58,7 +58,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 ## Next Command
 
-Run `$gsd-discuss-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Run `$gsd-plan-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -78,6 +78,7 @@ Run `$gsd-discuss-phase 3.1` next; update/reinstall Xcode/CoreSimulator separate
 - [Phase 3]: Phase 3 security verified — All 12 plan-time threats are mitigated with `threats_open: 0`; OCR remains selected-source-only and on-device, candidates remain review-only, and confirmed/manual saves preserve app-internal image copies.
 - [Phase 3]: Phase 3 Nyquist validation verified — All 13 tasks and 7 requirements have automated evidence; added 320x568 reachability tests for discovery report actions and no-candidate manual registration controls; full suite passed 67/67.
 - [Milestone v1.0]: Early milestone audit found gaps — Phase 4~7 remain planned work, and the default Phase 1~3 Scan path still needs production local picker, MethodChannel OCR, SQLite repository, and app-internal image copy wiring before Phase 4.
+- [Phase 3.1]: Phase 3.1 production adapter context captured — Real photo multi-select, image-file multi-select plus explicit bounded folder selection, original-byte reusable app-internal copies, and failed-item-only retry are locked in 03.1-CONTEXT.md. — Close milestone audit wiring gaps before Phase 4 without expanding into Wallet UI or broad library scanning.
 
 ## Accumulated Context
 
