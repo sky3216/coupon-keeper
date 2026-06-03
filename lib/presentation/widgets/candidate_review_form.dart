@@ -13,6 +13,7 @@ class CandidateReviewForm extends StatefulWidget {
     required this.onSave,
     required this.onReject,
     required this.onManualRegistration,
+    this.errorText,
     super.key,
   });
 
@@ -29,6 +30,7 @@ class CandidateReviewForm extends StatefulWidget {
   final Future<void> Function() onSave;
   final VoidCallback onReject;
   final VoidCallback onManualRegistration;
+  final String? errorText;
 
   @override
   State<CandidateReviewForm> createState() => _CandidateReviewFormState();
@@ -148,6 +150,15 @@ class _CandidateReviewFormState extends State<CandidateReviewForm> {
             const SizedBox(height: 8),
             Text(candidate.barcodeNumericCandidates.join(', ')),
             const SizedBox(height: 16),
+          ],
+          if (widget.errorText != null) ...[
+            Text(
+              widget.errorText!,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppTheme.warning),
+            ),
+            const SizedBox(height: 12),
           ],
           Semantics(
             label: candidate.isSaveReady

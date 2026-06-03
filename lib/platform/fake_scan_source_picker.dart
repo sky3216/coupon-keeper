@@ -3,18 +3,48 @@ import '../domain/scan_source.dart';
 import 'scan_source_picker.dart';
 
 class FakeScanSourcePicker implements ScanSourcePicker {
-  FakeScanSourcePicker._(this._result);
+  FakeScanSourcePicker._(this._result, {ScanSourcePickResult? retryResult})
+    : _retryResult = retryResult ?? _result;
 
-  factory FakeScanSourcePicker.photos(Iterable<ScanItem> items) {
-    return FakeScanSourcePicker._(ScanSourcePickResult.selected(items));
+  factory FakeScanSourcePicker.photos(
+    Iterable<ScanItem> items, {
+    ScanSourcePickResult? retryResult,
+  }) {
+    return FakeScanSourcePicker._(
+      ScanSourcePickResult.selected(items),
+      retryResult: retryResult,
+    );
   }
 
-  factory FakeScanSourcePicker.downloads(Iterable<ScanItem> items) {
-    return FakeScanSourcePicker._(ScanSourcePickResult.selected(items));
+  factory FakeScanSourcePicker.downloads(
+    Iterable<ScanItem> items, {
+    ScanSourcePickResult? retryResult,
+  }) {
+    return FakeScanSourcePicker._(
+      ScanSourcePickResult.selected(items),
+      retryResult: retryResult,
+    );
   }
 
-  factory FakeScanSourcePicker.folder(Iterable<ScanItem> items) {
-    return FakeScanSourcePicker._(ScanSourcePickResult.selected(items));
+  factory FakeScanSourcePicker.folder(
+    Iterable<ScanItem> items, {
+    ScanSourcePickResult? retryResult,
+  }) {
+    return FakeScanSourcePicker._(
+      ScanSourcePickResult.selected(items),
+      retryResult: retryResult,
+    );
+  }
+
+  factory FakeScanSourcePicker.selectedWithFailures({
+    required Iterable<ScanItem> items,
+    required Iterable<RetryableSourceFailure> failures,
+    ScanSourcePickResult? retryResult,
+  }) {
+    return FakeScanSourcePicker._(
+      ScanSourcePickResult.selected(items, retryableFailures: failures),
+      retryResult: retryResult,
+    );
   }
 
   factory FakeScanSourcePicker.cancelled() {
@@ -30,6 +60,7 @@ class FakeScanSourcePicker implements ScanSourcePicker {
   }
 
   final ScanSourcePickResult _result;
+  final ScanSourcePickResult _retryResult;
   final List<ScanSourceType> requestedSources = [];
   final List<List<String>> retryRequests = [];
   final List<String> releasedItemRefs = [];
@@ -46,7 +77,7 @@ class FakeScanSourcePicker implements ScanSourcePicker {
     Iterable<RetryableSourceFailure> failures,
   ) async {
     retryRequests.add(failures.map((failure) => failure.handle).toList());
-    return _result;
+    return _retryResult;
   }
 
   @override

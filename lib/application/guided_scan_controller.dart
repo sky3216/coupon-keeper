@@ -24,15 +24,21 @@ class GuidedScanController {
   final Duration duplicateOnlyDelay;
   final StreamController<GuidedScanState> _states =
       StreamController<GuidedScanState>.broadcast();
+  final List<ScanItem> _retainedItems = [];
+  final List<ScanItem> _failedItems = [];
+  final List<RetryableSourceFailure> _sourceFailures = [];
 
   GuidedScanState _state = const GuidedScanState.idle();
   var _cancelRequested = false;
 
   GuidedScanState get state => _state;
   Stream<GuidedScanState> get states => _states.stream;
+  bool get canRetryFailed =>
+      _failedItems.isNotEmpty || _sourceFailures.isNotEmpty;
 
   Future<void> start(ScanSourceType sourceType) async {
     _cancelRequested = false;
+    _releaseRetainedResources();
     _emit(const GuidedScanState(status: GuidedScanStatus.selecting));
 
     final pickResult = await picker.pick(sourceType);
@@ -62,8 +68,62 @@ class GuidedScanController {
         );
         return;
       case ScanSourcePickStatus.selected:
-        await _processSelected(pickResult.items);
+        _retainedItems.addAll(pickResult.items);
+        _sourceFailures.addAll(pickResult.retryableFailures);
+        await _processSelected(
+          pickResult.items,
+          sourceFailureCount: pickResult.retryableFailures.length,
+        );
     }
+  }
+
+  Future<void> retryFailed() async {
+    if (!canRetryFailed) {
+      return;
+    }
+    _cancelRequested = false;
+    final itemsToRetry = List<ScanItem>.from(_failedItems);
+    final sourceFailuresToRetry = List<RetryableSourceFailure>.from(
+      _sourceFailures,
+    );
+    final baseProcessedCount = _state.processedCount;
+    _failedItems.clear();
+    _sourceFailures.clear();
+
+    _emit(
+      GuidedScanState(
+        status: GuidedScanStatus.running,
+        totalCount:
+            baseProcessedCount +
+            itemsToRetry.length +
+            sourceFailuresToRetry.length,
+        processedCount: baseProcessedCount,
+      ),
+    );
+
+    final retryResult = sourceFailuresToRetry.isEmpty
+        ? ScanSourcePickResult.selected(const [])
+        : await picker.retryFailures(sourceFailuresToRetry);
+    if (retryResult.status != ScanSourcePickStatus.selected) {
+      _failedItems.addAll(itemsToRetry);
+      _sourceFailures.addAll(sourceFailuresToRetry);
+      _emit(
+        _state.copyWith(
+          status: GuidedScanStatus.processingFailed,
+          failedCount: _failedItems.length + _sourceFailures.length,
+          failure: ScanFailure.processingFailed,
+        ),
+      );
+      return;
+    }
+
+    _retainedItems.addAll(retryResult.items);
+    _sourceFailures.addAll(retryResult.retryableFailures);
+    await _processSelected(
+      [...itemsToRetry, ...retryResult.items],
+      sourceFailureCount: retryResult.retryableFailures.length,
+      baseProcessedCount: baseProcessedCount,
+    );
   }
 
   void cancel() {
@@ -72,15 +132,23 @@ class GuidedScanController {
 
   void reset() {
     _cancelRequested = false;
+    _releaseRetainedResources();
     _emit(const GuidedScanState.idle());
   }
 
   Future<void> dispose() async {
+    _releaseRetainedResources();
     await _states.close();
   }
 
-  Future<void> _processSelected(List<ScanItem> selectedItems) async {
-    if (selectedItems.isEmpty) {
+  Future<void> _processSelected(
+    List<ScanItem> selectedItems, {
+    int sourceFailureCount = 0,
+    int baseProcessedCount = 0,
+  }) async {
+    if (selectedItems.isEmpty &&
+        sourceFailureCount == 0 &&
+        baseProcessedCount == 0) {
       _emit(const GuidedScanState(status: GuidedScanStatus.empty));
       return;
     }
@@ -91,7 +159,9 @@ class GuidedScanController {
     _emit(
       GuidedScanState(
         status: GuidedScanStatus.running,
-        totalCount: selectedItems.length,
+        totalCount:
+            baseProcessedCount + selectedItems.length + sourceFailureCount,
+        processedCount: baseProcessedCount,
         duplicateSkipped: batch.duplicateCount,
       ),
     );
@@ -107,7 +177,7 @@ class GuidedScanController {
         _emit(
           _state.copyWith(
             status: GuidedScanStatus.cancelled,
-            processedCount: processed,
+            processedCount: baseProcessedCount + processed,
             failedCount: failed,
             failure: ScanFailure.userCancelled,
           ),
@@ -119,11 +189,12 @@ class GuidedScanController {
         await _processItem(item);
       } catch (_) {
         failed += 1;
+        _failedItems.add(item);
         _emit(
           _state.copyWith(
             status: GuidedScanStatus.running,
-            processedCount: processed,
-            failedCount: failed,
+            processedCount: baseProcessedCount + processed,
+            failedCount: failed + sourceFailureCount,
           ),
         );
         continue;
@@ -133,7 +204,7 @@ class GuidedScanController {
         _emit(
           _state.copyWith(
             status: GuidedScanStatus.cancelled,
-            processedCount: processed,
+            processedCount: baseProcessedCount + processed,
             failedCount: failed,
             failure: ScanFailure.userCancelled,
           ),
@@ -146,41 +217,43 @@ class GuidedScanController {
       _emit(
         _state.copyWith(
           status: GuidedScanStatus.running,
-          processedCount: processed,
-          failedCount: failed,
+          processedCount: baseProcessedCount + processed,
+          failedCount: failed + sourceFailureCount,
         ),
       );
     }
 
-    if (processed == 0 && failed == 0) {
+    final totalFailed = failed + sourceFailureCount;
+
+    if (processed == 0 && totalFailed == 0) {
       _emit(
         _state.copyWith(
           status: GuidedScanStatus.completed,
-          processedCount: processed,
+          processedCount: baseProcessedCount,
           failedCount: failed,
         ),
       );
       return;
     }
 
-    if (failed > 0 && processed == 0) {
+    if (totalFailed > 0 && processed == 0 && baseProcessedCount == 0) {
       _emit(
         _state.copyWith(
           status: GuidedScanStatus.processingFailed,
           processedCount: processed,
-          failedCount: failed,
+          failedCount: totalFailed,
           failure: ScanFailure.processingFailed,
         ),
       );
       return;
     }
 
-    if (failed > 0) {
+    if (totalFailed > 0) {
       _emit(
         _state.copyWith(
           status: GuidedScanStatus.partial,
-          processedCount: processed,
-          failedCount: failed,
+          processedCount: baseProcessedCount + processed,
+          failedCount: totalFailed,
           failure: ScanFailure.processingFailed,
         ),
       );
@@ -190,10 +263,21 @@ class GuidedScanController {
     _emit(
       _state.copyWith(
         status: GuidedScanStatus.completed,
-        processedCount: processed,
+        processedCount: baseProcessedCount + processed,
         failedCount: failed,
       ),
     );
+  }
+
+  void _releaseRetainedResources() {
+    if (_retainedItems.isNotEmpty || _sourceFailures.isNotEmpty) {
+      unawaited(
+        picker.release(items: _retainedItems, failures: _sourceFailures),
+      );
+    }
+    _retainedItems.clear();
+    _failedItems.clear();
+    _sourceFailures.clear();
   }
 
   void _emit(GuidedScanState state) {

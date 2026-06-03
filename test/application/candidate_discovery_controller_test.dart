@@ -62,6 +62,49 @@ void main() {
     },
   );
 
+  test(
+    'successful candidates remain after a sibling item repeatedly fails',
+    () async {
+      final successful = _item;
+      final failing = ScanItem(
+        sourceType: ScanSourceType.downloads,
+        sourceToken: 'unstable-token',
+        platformSourceRef: 'content://selected/unstable',
+        displayName: 'unstable.jpg',
+      );
+      final discovery = _controller(
+        _ocr(['무료 음료 쿠폰', '2026.06.30']),
+        repository: InMemoryPassRepository(),
+        imageCopyStore: FakeImageCopyStore(),
+      );
+      final guided = GuidedScanController(
+        picker: FakeScanSourcePicker.downloads([successful, failing]),
+        fingerprintCache: InMemoryScanFingerprintCache(),
+        processItem: (item) async {
+          if (item.sourceToken == failing.sourceToken) {
+            throw StateError('still unreadable');
+          }
+          await discovery.processItem(item);
+        },
+      );
+
+      await guided.start(ScanSourceType.downloads);
+      discovery.finishDiscovery();
+
+      expect(guided.state.status, GuidedScanStatus.partial);
+      expect(discovery.status, CandidateDiscoveryStatus.reportReady);
+      expect(discovery.candidates, hasLength(1));
+
+      await guided.retryFailed();
+      discovery.finishDiscovery();
+
+      expect(guided.state.status, GuidedScanStatus.partial);
+      expect(guided.state.failedCount, 1);
+      expect(discovery.candidates, hasLength(1));
+      expect(discovery.status, CandidateDiscoveryStatus.reportReady);
+    },
+  );
+
   test('explicit candidate save copies image and writes active pass', () async {
     final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30', '4,500원']));
     await fixture.controller.processItem(_item);
