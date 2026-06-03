@@ -213,33 +213,41 @@ class CandidateDiscoveryController {
     }
     final id = nextId();
     final timestamp = now();
-    final imageCopyPath = await imageCopyStore.copyIntoAppStorage(
+    final imageCopy = await imageCopyStore.copyIntoAppStorage(
       sourceRef,
+      fingerprint: source.fingerprintInput,
       id: id,
     );
-    await passRepository.save(
-      Pass(
-        id: id,
-        type: PassType.coupon,
-        title: title.trim(),
-        brand: brand?.trim(),
-        estimatedValue: estimatedValue,
-        expiry: expiry,
-        status: PassStatus.active,
-        sourceMetadata: PassSourceMetadata(
-          originalUri: sourceRef,
-          platformSourceType: source.sourceType.name,
-          fingerprint: source.fingerprintInput,
-          importedAt: timestamp,
-          isAvailable: true,
+    try {
+      await passRepository.save(
+        Pass(
+          id: id,
+          type: PassType.coupon,
+          title: title.trim(),
+          brand: brand?.trim(),
+          estimatedValue: estimatedValue,
+          expiry: expiry,
+          status: PassStatus.active,
+          sourceMetadata: PassSourceMetadata(
+            originalUri: sourceRef,
+            platformSourceType: source.sourceType.name,
+            fingerprint: source.fingerprintInput,
+            importedAt: timestamp,
+            isAvailable: true,
+          ),
+          imageCopyPath: imageCopy.path,
+          ocrText: ocrText,
+          confidence: confidence,
+          createdAt: timestamp,
+          updatedAt: timestamp,
         ),
-        imageCopyPath: imageCopyPath,
-        ocrText: ocrText,
-        confidence: confidence,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      ),
-    );
+      );
+    } catch (_) {
+      if (imageCopy.created) {
+        await imageCopyStore.deleteCopy(imageCopy.path);
+      }
+      rethrow;
+    }
   }
 
   PassCandidate _requireCurrentCandidate() {
