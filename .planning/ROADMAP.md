@@ -82,12 +82,12 @@ Plans:
 
 **Wave 1**
 
-- [ ] `03.1-01-PLAN.md` — SQLite local persistence and durable original-byte image copies
-- [ ] `03.1-02-PLAN.md` — Native selected-source picker with bounded staging and retry handles
+- [x] `03.1-01-PLAN.md` — SQLite local persistence and durable original-byte image copies
+- [x] `03.1-02-PLAN.md` — Native selected-source picker with bounded staging and retry handles
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] `03.1-03-PLAN.md` — Failed-item-only retry and production default composition
+- [x] `03.1-03-PLAN.md` — Failed-item-only retry and production default composition
 
 Cross-cutting constraints:
 
