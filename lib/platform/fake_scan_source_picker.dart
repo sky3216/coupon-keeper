@@ -13,6 +13,10 @@ class FakeScanSourcePicker implements ScanSourcePicker {
     return FakeScanSourcePicker._(ScanSourcePickResult.selected(items));
   }
 
+  factory FakeScanSourcePicker.folder(Iterable<ScanItem> items) {
+    return FakeScanSourcePicker._(ScanSourcePickResult.selected(items));
+  }
+
   factory FakeScanSourcePicker.cancelled() {
     return FakeScanSourcePicker._(const ScanSourcePickResult.cancelled());
   }
@@ -27,10 +31,30 @@ class FakeScanSourcePicker implements ScanSourcePicker {
 
   final ScanSourcePickResult _result;
   final List<ScanSourceType> requestedSources = [];
+  final List<List<String>> retryRequests = [];
+  final List<String> releasedItemRefs = [];
+  final List<String> releasedFailureHandles = [];
 
   @override
   Future<ScanSourcePickResult> pick(ScanSourceType sourceType) async {
     requestedSources.add(sourceType);
     return _result;
+  }
+
+  @override
+  Future<ScanSourcePickResult> retryFailures(
+    Iterable<RetryableSourceFailure> failures,
+  ) async {
+    retryRequests.add(failures.map((failure) => failure.handle).toList());
+    return _result;
+  }
+
+  @override
+  Future<void> release({
+    Iterable<ScanItem> items = const [],
+    Iterable<RetryableSourceFailure> failures = const [],
+  }) async {
+    releasedItemRefs.addAll(items.map((item) => item.platformSourceRef ?? ''));
+    releasedFailureHandles.addAll(failures.map((failure) => failure.handle));
   }
 }
