@@ -4,14 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
-import '../../application/pass_candidate_parser.dart';
-import '../../data/in_memory_pass_repository.dart';
-import '../../data/in_memory_scan_fingerprint_cache.dart';
-import '../../domain/ocr_text.dart';
 import '../../domain/scan_source.dart';
-import '../../platform/fake_image_copy_store.dart';
-import '../../platform/fake_ocr_text_recognizer.dart';
-import '../../platform/phase_two_demo_scan_source_picker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/candidate_review_form.dart';
 import '../widgets/discovery_report.dart';
@@ -43,6 +36,8 @@ class _ScanScreenState extends State<ScanScreen> {
   late bool _ownsDiscoveryController;
   StreamSubscription<GuidedScanState>? _stateSubscription;
   late GuidedScanState _state;
+  String? _saveError;
+  var _showRetainedDiscovery = false;
 
   @override
   void initState() {
@@ -54,7 +49,8 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void didUpdateWidget(covariant ScanScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) {
+    if (oldWidget.controller != widget.controller ||
+        oldWidget.discoveryController != widget.discoveryController) {
       _detachController();
       _attachController(widget.controller);
     }
@@ -67,29 +63,26 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void _attachController(GuidedScanController? controller) {
-    _ownsDiscoveryController = widget.discoveryController == null;
-    _discoveryController = widget.discoveryController;
-    if (controller == null && _discoveryController == null) {
-      _discoveryController = _defaultDiscoveryController();
+    if (controller == null) {
+      throw StateError(
+        'ScanScreen requires a GuidedScanController from the app composition root.',
+      );
     }
-    _ownsController = controller == null;
-    _controller =
-        controller ??
-        GuidedScanController(
-          picker: const PhaseTwoDemoScanSourcePicker(),
-          fingerprintCache: InMemoryScanFingerprintCache(),
-          processItem: (item) async {
-            await Future<void>.delayed(const Duration(milliseconds: 800));
-            await _discoveryController!.processItem(item);
-          },
-          duplicateOnlyDelay: const Duration(milliseconds: 800),
-        );
+    _ownsDiscoveryController = false;
+    _discoveryController = widget.discoveryController;
+    _ownsController = false;
+    _controller = controller;
     _state = _controller.state;
     _stateSubscription = _controller.states.listen((state) {
       if (mounted) {
         setState(() {
           _state = state;
-          if (state.status == GuidedScanStatus.completed &&
+          if (state.status == GuidedScanStatus.running ||
+              state.status == GuidedScanStatus.selecting) {
+            _showRetainedDiscovery = false;
+          }
+          if ((state.status == GuidedScanStatus.completed ||
+                  state.status == GuidedScanStatus.partial) &&
               state.processedCount > 0) {
             _discoveryController?.finishDiscovery();
           }
@@ -160,19 +153,49 @@ class _ScanScreenState extends State<ScanScreen> {
           heading: '일부 항목을 확인하지 못했어요',
           body: '다시 시도하거나 다른 항목을 선택할 수 있어요.',
           primaryActionLabel: '다시 시도',
-          onPrimaryAction: () => _controller.start(ScanSourceType.downloads),
+          onPrimaryAction: _controller.canRetryFailed
+              ? _controller.retryFailed
+              : null,
           secondaryActionLabel: '다시 선택',
           onSecondaryAction: _controller.reset,
         );
       case GuidedScanStatus.partial:
+        if (_showRetainedDiscovery &&
+            _discoveryController?.status ==
+                CandidateDiscoveryStatus.reportReady) {
+          return _buildDiscovery();
+        }
         return _ScanSummary(
           heading: '일부 항목만 확인했어요',
           body: '선택한 항목만 기기 안에서 확인했습니다.',
           state: _state,
           primaryActionLabel: '남은 항목 다시 시도',
-          onPrimaryAction: () => _controller.start(ScanSourceType.downloads),
-          secondaryActionLabel: '다시 선택',
-          onSecondaryAction: _controller.reset,
+          onPrimaryAction: _controller.canRetryFailed
+              ? () {
+                  _showRetainedDiscovery = false;
+                  unawaited(_controller.retryFailed());
+                }
+              : null,
+          secondaryActionLabel:
+              _discoveryController?.status ==
+                  CandidateDiscoveryStatus.reportReady
+              ? '확인한 후보 보기'
+              : '다시 선택',
+          onSecondaryAction:
+              _discoveryController?.status ==
+                  CandidateDiscoveryStatus.reportReady
+              ? () => setState(() => _showRetainedDiscovery = true)
+              : _controller.reset,
+          tertiaryActionLabel:
+              _discoveryController?.status ==
+                  CandidateDiscoveryStatus.reportReady
+              ? '다시 선택'
+              : null,
+          onTertiaryAction:
+              _discoveryController?.status ==
+                  CandidateDiscoveryStatus.reportReady
+              ? _reset
+              : null,
         );
       case GuidedScanStatus.completed:
         if (_state.processedCount > 0 && _discoveryController != null) {
@@ -228,9 +251,19 @@ class _ScanScreenState extends State<ScanScreen> {
                 });
               },
           onSave: () async {
-            await discovery.saveCurrentCandidate();
-            if (mounted) {
-              setState(() {});
+            try {
+              await discovery.saveCurrentCandidate();
+              if (mounted) {
+                setState(() {
+                  _saveError = null;
+                });
+              }
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  _saveError = '저장하지 못했어요. 다시 시도해 주세요.';
+                });
+              }
             }
           },
           onReject: () {
@@ -239,6 +272,7 @@ class _ScanScreenState extends State<ScanScreen> {
           onManualRegistration: () {
             setState(discovery.beginManualRegistration);
           },
+          errorText: _saveError,
         );
       case CandidateDiscoveryStatus.noCandidates:
         return EmptyState(
@@ -262,16 +296,27 @@ class _ScanScreenState extends State<ScanScreen> {
                 required expiry,
                 estimatedValue,
               }) async {
-                await discovery.saveManualRegistration(
-                  title: title,
-                  brand: brand,
-                  expiry: expiry,
-                  estimatedValue: estimatedValue,
-                );
-                if (mounted) {
-                  setState(() {});
+                try {
+                  await discovery.saveManualRegistration(
+                    title: title,
+                    brand: brand,
+                    expiry: expiry,
+                    estimatedValue: estimatedValue,
+                  );
+                  if (mounted) {
+                    setState(() {
+                      _saveError = null;
+                    });
+                  }
+                } catch (_) {
+                  if (mounted) {
+                    setState(() {
+                      _saveError = '저장하지 못했어요. 다시 시도해 주세요.';
+                    });
+                  }
                 }
               },
+          errorText: _saveError,
           onCancel: () {
             setState(discovery.cancelManualRegistration);
           },
@@ -288,43 +333,10 @@ class _ScanScreenState extends State<ScanScreen> {
 
   void _reset() {
     _discoveryController?.reset();
+    _saveError = null;
+    _showRetainedDiscovery = false;
     _controller.reset();
   }
-}
-
-CandidateDiscoveryController _defaultDiscoveryController() {
-  var nextId = 0;
-  return CandidateDiscoveryController(
-    recognizer: FakeOcrTextRecognizer.success(
-      const OcrTextResult(
-        fullText: '선택한 쿠폰 이미지\n2026.06.30',
-        blocks: [
-          OcrTextBlock(
-            text: '선택한 쿠폰 이미지\n2026.06.30',
-            bounds: OcrBounds(left: 0, top: 0, width: 1, height: 1),
-            confidence: 0.7,
-            lines: [
-              OcrTextLine(
-                text: '선택한 쿠폰 이미지',
-                bounds: OcrBounds(left: 0, top: 0, width: 1, height: 0.2),
-                confidence: 0.7,
-              ),
-              OcrTextLine(
-                text: '2026.06.30',
-                bounds: OcrBounds(left: 0, top: 0.3, width: 1, height: 0.2),
-                confidence: 0.7,
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-    parser: const PassCandidateParser(),
-    imageCopyStore: FakeImageCopyStore(),
-    passRepository: InMemoryPassRepository(),
-    now: DateTime.now,
-    nextId: () => 'demo-pass-${nextId++}',
-  );
 }
 
 class _BatchCompletion extends StatelessWidget {
@@ -386,6 +398,8 @@ class _ScanSummary extends StatelessWidget {
     this.primaryActionSemanticLabel,
     this.secondaryActionLabel,
     this.onSecondaryAction,
+    this.tertiaryActionLabel,
+    this.onTertiaryAction,
   });
 
   final String heading;
@@ -396,6 +410,8 @@ class _ScanSummary extends StatelessWidget {
   final String? primaryActionSemanticLabel;
   final String? secondaryActionLabel;
   final VoidCallback? onSecondaryAction;
+  final String? tertiaryActionLabel;
+  final VoidCallback? onTertiaryAction;
 
   @override
   Widget build(BuildContext context) {
@@ -440,6 +456,13 @@ class _ScanSummary extends StatelessWidget {
             TextButton(
               onPressed: onSecondaryAction,
               child: Text(secondaryActionLabel!),
+            ),
+          ],
+          if (tertiaryActionLabel != null) ...[
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: onTertiaryAction,
+              child: Text(tertiaryActionLabel!),
             ),
           ],
         ],
@@ -557,6 +580,12 @@ class _ScanStart extends StatelessWidget {
             sourceType: ScanSourceType.downloads,
             icon: Icons.folder_open_outlined,
             onPressed: () => onSourceSelected(ScanSourceType.downloads),
+          ),
+          const SizedBox(height: 12),
+          ScanSourceChoice(
+            sourceType: ScanSourceType.folder,
+            icon: Icons.folder_copy_outlined,
+            onPressed: () => onSourceSelected(ScanSourceType.folder),
           ),
           const SizedBox(height: 16),
           Text(

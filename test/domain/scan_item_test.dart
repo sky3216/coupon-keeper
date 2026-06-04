@@ -4,13 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ScanItem', () {
-    test('represents photos separately from downloads and files', () {
+    test('represents photos, downloads, and folders separately', () {
       expect(ScanSourceType.photos.label, '사진');
       expect(ScanSourceType.downloads.label, '다운로드/파일');
+      expect(ScanSourceType.folder.label, '폴더');
       expect(ScanSourceType.photos.supportingCopy, '사진 앱에서 직접 고른 항목만 확인해요.');
+      expect(ScanSourceType.downloads.supportingCopy, '다운로드한 이미지를 직접 고릅니다.');
       expect(
-        ScanSourceType.downloads.supportingCopy,
-        '다운로드한 이미지나 폴더를 직접 고릅니다.',
+        ScanSourceType.folder.supportingCopy,
+        '직접 고른 폴더의 바로 안쪽 이미지만 확인해요.',
       );
     });
 

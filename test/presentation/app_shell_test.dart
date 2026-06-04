@@ -1,3 +1,6 @@
+import 'package:coupon_keeper/application/guided_scan_controller.dart';
+import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
+import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
 import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,7 +9,7 @@ void main() {
   testWidgets('launches with Today selected and three destinations', (
     tester,
   ) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     expect(find.text('잊고 있던 쿠폰을 찾아볼까요?'), findsOneWidget);
     expect(find.text('Today'), findsOneWidget);
@@ -17,7 +20,7 @@ void main() {
   testWidgets('Today CTA moves to Scan without invoking a picker', (
     tester,
   ) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
     await tester.pumpAndSettle();
@@ -27,7 +30,7 @@ void main() {
   });
 
   testWidgets('Wallet CTA moves to Scan', (tester) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     await tester.tap(find.text('Wallet'));
     await tester.pumpAndSettle();
@@ -42,7 +45,7 @@ void main() {
   testWidgets('empty states use approved copy and no placeholders', (
     tester,
   ) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     expect(
       find.text('사진과 다운로드에 흩어진 쿠폰을 선택한 범위 안에서 찾아 지갑에 모아둘 수 있어요.'),
@@ -64,7 +67,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     final cta = find.text('숨어 있는 쿠폰 찾기');
     expect(cta, findsOneWidget);
@@ -75,7 +78,7 @@ void main() {
   });
 
   testWidgets('Wallet remains honestly empty by default', (tester) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_testApp());
 
     await tester.tap(find.text('Wallet'));
     await tester.pumpAndSettle();
@@ -85,4 +88,13 @@ void main() {
     expect(find.text('아메리카노'), findsNothing);
     expect(find.text('sample coupon'), findsNothing);
   });
+}
+
+CouponKeeperApp _testApp() {
+  return CouponKeeperApp(
+    scanController: GuidedScanController(
+      picker: FakeScanSourcePicker.downloads(const []),
+      fingerprintCache: InMemoryScanFingerprintCache(),
+    ),
+  );
 }

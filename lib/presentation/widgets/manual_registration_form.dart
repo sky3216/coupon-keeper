@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/scan_item.dart';
+import '../theme/app_theme.dart';
 import 'source_image_preview.dart';
 
 class ManualRegistrationForm extends StatefulWidget {
@@ -8,6 +9,7 @@ class ManualRegistrationForm extends StatefulWidget {
     required this.source,
     required this.onSave,
     required this.onCancel,
+    this.errorText,
     super.key,
   });
 
@@ -20,6 +22,7 @@ class ManualRegistrationForm extends StatefulWidget {
   })
   onSave;
   final VoidCallback onCancel;
+  final String? errorText;
 
   @override
   State<ManualRegistrationForm> createState() => _ManualRegistrationFormState();
@@ -77,6 +80,15 @@ class _ManualRegistrationFormState extends State<ManualRegistrationForm> {
           _input(_brand, '브랜드'),
           _input(_expiry, '만료일', hint: '2026.06.30'),
           _input(_value, '금액', keyboardType: TextInputType.number),
+          if (widget.errorText != null) ...[
+            Text(
+              widget.errorText!,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppTheme.warning),
+            ),
+            const SizedBox(height: 12),
+          ],
           FilledButton(
             onPressed: isReady
                 ? () async {

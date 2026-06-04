@@ -1,4 +1,4 @@
-enum ScanSourceType { photos, downloads }
+enum ScanSourceType { photos, downloads, folder }
 
 extension ScanSourceTypeCopy on ScanSourceType {
   String get label {
@@ -7,6 +7,8 @@ extension ScanSourceTypeCopy on ScanSourceType {
         return '사진';
       case ScanSourceType.downloads:
         return '다운로드/파일';
+      case ScanSourceType.folder:
+        return '폴더';
     }
   }
 
@@ -16,6 +18,8 @@ extension ScanSourceTypeCopy on ScanSourceType {
         return '사진에서 찾기';
       case ScanSourceType.downloads:
         return '다운로드/파일에서 찾기';
+      case ScanSourceType.folder:
+        return '폴더에서 찾기';
     }
   }
 
@@ -24,7 +28,9 @@ extension ScanSourceTypeCopy on ScanSourceType {
       case ScanSourceType.photos:
         return '사진 앱에서 직접 고른 항목만 확인해요.';
       case ScanSourceType.downloads:
-        return '다운로드한 이미지나 폴더를 직접 고릅니다.';
+        return '다운로드한 이미지를 직접 고릅니다.';
+      case ScanSourceType.folder:
+        return '직접 고른 폴더의 바로 안쪽 이미지만 확인해요.';
     }
   }
 }

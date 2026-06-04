@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:coupon_keeper/application/candidate_discovery_controller.dart';
 import 'package:coupon_keeper/application/guided_scan_controller.dart';
+import 'package:coupon_keeper/application/pass_candidate_parser.dart';
+import 'package:coupon_keeper/data/in_memory_pass_repository.dart';
 import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
+import 'package:coupon_keeper/domain/ocr_text.dart';
 import 'package:coupon_keeper/domain/scan_item.dart';
 import 'package:coupon_keeper/domain/scan_source.dart';
+import 'package:coupon_keeper/platform/fake_image_copy_store.dart';
+import 'package:coupon_keeper/platform/fake_ocr_text_recognizer.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
 import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +19,7 @@ void main() {
   testWidgets('default app path shows progress after selecting downloads', (
     tester,
   ) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_demoApp());
 
     expect(find.text('잊고 있던 쿠폰을 찾아볼까요?'), findsOneWidget);
     await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
@@ -38,7 +44,7 @@ void main() {
   testWidgets('default duplicate selection shows skip feedback', (
     tester,
   ) async {
-    await tester.pumpWidget(const CouponKeeperApp());
+    await tester.pumpWidget(_demoApp());
 
     await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
     await tester.pumpAndSettle();
@@ -159,12 +165,60 @@ void main() {
   );
 }
 
+CouponKeeperApp _demoApp() {
+  final selected = _item('demo-download');
+  final discovery = CandidateDiscoveryController(
+    recognizer: FakeOcrTextRecognizer.success(_ocr),
+    parser: const PassCandidateParser(),
+    imageCopyStore: FakeImageCopyStore(),
+    passRepository: InMemoryPassRepository(),
+    now: () => DateTime(2026, 5, 31),
+    nextId: () => 'pass-1',
+  );
+  return CouponKeeperApp(
+    scanController: GuidedScanController(
+      picker: FakeScanSourcePicker.downloads([selected]),
+      fingerprintCache: InMemoryScanFingerprintCache(),
+      processItem: (item) async {
+        await Future<void>.delayed(const Duration(milliseconds: 800));
+        await discovery.processItem(item);
+      },
+      duplicateOnlyDelay: const Duration(milliseconds: 800),
+    ),
+    discoveryController: discovery,
+  );
+}
+
 ScanItem _item(String token) {
   return ScanItem(
     sourceType: ScanSourceType.downloads,
     sourceToken: token,
+    platformSourceRef: 'fixture://$token',
     displayName: '$token.jpg',
     byteSize: 1024,
     modifiedAt: DateTime(2026, 5, 24),
   );
 }
+
+const _ocr = OcrTextResult(
+  fullText: '무료 음료 쿠폰\n2026.06.30',
+  blocks: [
+    OcrTextBlock(
+      text: '무료 음료 쿠폰\n2026.06.30',
+      bounds: OcrBounds(left: 0, top: 0, width: 1, height: 1),
+      confidence: 0.9,
+      lines: [
+        OcrTextLine(
+          text: '무료 음료 쿠폰',
+          bounds: OcrBounds(left: 0, top: 0, width: 1, height: 0.2),
+          confidence: 0.9,
+        ),
+        OcrTextLine(
+          text: '2026.06.30',
+          bounds: OcrBounds(left: 0, top: 0.3, width: 1, height: 0.2),
+          confidence: 0.9,
+        ),
+      ],
+    ),
+  ],
+);

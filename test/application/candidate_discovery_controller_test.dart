@@ -3,7 +3,9 @@ import 'package:coupon_keeper/application/guided_scan_controller.dart';
 import 'package:coupon_keeper/application/pass_candidate_parser.dart';
 import 'package:coupon_keeper/data/in_memory_pass_repository.dart';
 import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
+import 'package:coupon_keeper/data/pass_repository.dart';
 import 'package:coupon_keeper/domain/ocr_text.dart';
+import 'package:coupon_keeper/domain/pass.dart';
 import 'package:coupon_keeper/domain/scan_item.dart';
 import 'package:coupon_keeper/domain/scan_source.dart';
 import 'package:coupon_keeper/platform/fake_image_copy_store.dart';
@@ -23,6 +25,20 @@ void main() {
     expect(fixture.controller.report.candidateCount, 1);
     expect(fixture.controller.report.protectedValue, 4500);
     expect(await fixture.repository.listAll(), isEmpty);
+  });
+
+  test('single recognized expiry is confirmed for review readiness', () async {
+    final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
+
+    await fixture.controller.processItem(_item);
+    fixture.controller.finishDiscovery();
+    fixture.controller.beginReview();
+
+    expect(
+      fixture.controller.currentCandidate?.confirmedExpiry,
+      DateTime(2026, 6, 30),
+    );
+    expect(fixture.controller.currentCandidate?.isSaveReady, isTrue);
   });
 
   test('empty OCR reaches calm no-candidate state', () async {
@@ -60,6 +76,49 @@ void main() {
     },
   );
 
+  test(
+    'successful candidates remain after a sibling item repeatedly fails',
+    () async {
+      final successful = _item;
+      final failing = ScanItem(
+        sourceType: ScanSourceType.downloads,
+        sourceToken: 'unstable-token',
+        platformSourceRef: 'content://selected/unstable',
+        displayName: 'unstable.jpg',
+      );
+      final discovery = _controller(
+        _ocr(['무료 음료 쿠폰', '2026.06.30']),
+        repository: InMemoryPassRepository(),
+        imageCopyStore: FakeImageCopyStore(),
+      );
+      final guided = GuidedScanController(
+        picker: FakeScanSourcePicker.downloads([successful, failing]),
+        fingerprintCache: InMemoryScanFingerprintCache(),
+        processItem: (item) async {
+          if (item.sourceToken == failing.sourceToken) {
+            throw StateError('still unreadable');
+          }
+          await discovery.processItem(item);
+        },
+      );
+
+      await guided.start(ScanSourceType.downloads);
+      discovery.finishDiscovery();
+
+      expect(guided.state.status, GuidedScanStatus.partial);
+      expect(discovery.status, CandidateDiscoveryStatus.reportReady);
+      expect(discovery.candidates, hasLength(1));
+
+      await guided.retryFailed();
+      discovery.finishDiscovery();
+
+      expect(guided.state.status, GuidedScanStatus.partial);
+      expect(guided.state.failedCount, 1);
+      expect(discovery.candidates, hasLength(1));
+      expect(discovery.status, CandidateDiscoveryStatus.reportReady);
+    },
+  );
+
   test('explicit candidate save copies image and writes active pass', () async {
     final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30', '4,500원']));
     await fixture.controller.processItem(_item);
@@ -67,11 +126,8 @@ void main() {
     fixture.controller.beginReview();
 
     expect(
-      () => fixture.controller.saveCurrentCandidate(),
-      throwsA(isA<StateError>()),
-    );
-    fixture.controller.updateCurrentCandidate(
-      confirmedExpiry: DateTime(2026, 6, 30),
+      fixture.controller.currentCandidate?.confirmedExpiry,
+      DateTime(2026, 6, 30),
     );
     await fixture.controller.saveCurrentCandidate();
 
@@ -96,6 +152,83 @@ void main() {
     expect(fixture.imageCopyStore.copies, isEmpty);
     expect(fixture.controller.rejectedCount, 1);
     expect(fixture.controller.status, CandidateDiscoveryStatus.completed);
+  });
+
+  test(
+    'copy failure leaves candidate retryable and repository empty',
+    () async {
+      final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
+      fixture.imageCopyStore.copyError = 'copy failed';
+      await fixture.controller.processItem(_item);
+      fixture.controller.finishDiscovery();
+      fixture.controller.beginReview();
+      fixture.controller.updateCurrentCandidate(
+        confirmedExpiry: DateTime(2026, 6, 30),
+      );
+
+      await expectLater(
+        fixture.controller.saveCurrentCandidate(),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(await fixture.repository.listAll(), isEmpty);
+      expect(fixture.controller.savedCount, 0);
+      expect(fixture.controller.status, CandidateDiscoveryStatus.reviewing);
+      expect(fixture.controller.currentCandidate, isNotNull);
+    },
+  );
+
+  test(
+    'repository failure removes a newly created copy and keeps review active',
+    () async {
+      final repository = _FailingPassRepository();
+      final imageCopyStore = FakeImageCopyStore();
+      final controller = _controller(
+        _ocr(['무료 음료 쿠폰', '2026.06.30']),
+        repository: repository,
+        imageCopyStore: imageCopyStore,
+      );
+      await controller.processItem(_item);
+      controller.finishDiscovery();
+      controller.beginReview();
+      controller.updateCurrentCandidate(confirmedExpiry: DateTime(2026, 6, 30));
+
+      await expectLater(
+        controller.saveCurrentCandidate(),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(imageCopyStore.copies, isEmpty);
+      expect(controller.savedCount, 0);
+      expect(controller.status, CandidateDiscoveryStatus.reviewing);
+    },
+  );
+
+  test('repository failure preserves a reused copy', () async {
+    final repository = _FailingPassRepository();
+    final imageCopyStore = FakeImageCopyStore();
+    final existing = await imageCopyStore.copyIntoAppStorage(
+      'content://selected/coupon',
+      fingerprint: _item.fingerprintInput,
+      id: 'existing-copy',
+    );
+    final controller = _controller(
+      _ocr(['무료 음료 쿠폰', '2026.06.30']),
+      repository: repository,
+      imageCopyStore: imageCopyStore,
+    );
+    await controller.processItem(_item);
+    controller.finishDiscovery();
+    controller.beginReview();
+    controller.updateCurrentCandidate(confirmedExpiry: DateTime(2026, 6, 30));
+
+    await expectLater(
+      controller.saveCurrentCandidate(),
+      throwsA(isA<StateError>()),
+    );
+
+    expect(imageCopyStore.copies.keys, [existing.path]);
+    expect(controller.status, CandidateDiscoveryStatus.reviewing);
   });
 
   test(
@@ -155,14 +288,26 @@ _Fixture _fixture(OcrTextResult result) {
   return _Fixture(
     repository: repository,
     imageCopyStore: imageCopyStore,
-    controller: CandidateDiscoveryController(
-      recognizer: FakeOcrTextRecognizer.success(result),
-      parser: const PassCandidateParser(),
+    controller: _controller(
+      result,
+      repository: repository,
       imageCopyStore: imageCopyStore,
-      passRepository: repository,
-      now: () => DateTime(2026, 5, 31),
-      nextId: () => 'pass-1',
     ),
+  );
+}
+
+CandidateDiscoveryController _controller(
+  OcrTextResult result, {
+  required PassRepository repository,
+  required FakeImageCopyStore imageCopyStore,
+}) {
+  return CandidateDiscoveryController(
+    recognizer: FakeOcrTextRecognizer.success(result),
+    parser: const PassCandidateParser(),
+    imageCopyStore: imageCopyStore,
+    passRepository: repository,
+    now: () => DateTime(2026, 5, 31),
+    nextId: () => 'pass-1',
   );
 }
 
@@ -184,6 +329,13 @@ final _item = ScanItem(
   platformSourceRef: 'content://selected/coupon',
   displayName: 'coupon.jpg',
 );
+
+class _FailingPassRepository extends InMemoryPassRepository {
+  @override
+  Future<void> save(Pass pass) async {
+    throw StateError('repository failed');
+  }
+}
 
 OcrTextResult _ocr(List<String> textLines) {
   final lines = textLines

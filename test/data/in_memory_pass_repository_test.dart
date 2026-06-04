@@ -75,13 +75,14 @@ void main() {
       () async {
         final repository = InMemoryPassRepository();
         final store = FakeImageCopyStore();
-        final imageCopyPath = await store.copyIntoAppStorage(
+        final imageCopy = await store.copyIntoAppStorage(
           'fixture://downloads/missing-source.jpg',
+          fingerprint: 'sha256-missing-source',
           id: 'missing-source',
         );
         final pass = _pass(
           id: 'missing-source',
-          imageCopyPath: imageCopyPath,
+          imageCopyPath: imageCopy.path,
           sourceMetadata: PassSourceMetadata(
             originalUri: 'fixture://downloads/missing-source.jpg',
             platformSourceType: 'download',
@@ -100,7 +101,7 @@ void main() {
         expect(saved.imageCopyPath, startsWith('app://copies/'));
         expect(
           await store.resolveImagePath(saved.imageCopyPath!),
-          imageCopyPath,
+          imageCopy.path,
         );
       },
     );
