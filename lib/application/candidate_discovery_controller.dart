@@ -63,7 +63,7 @@ class CandidateDiscoveryController {
     _processedItems.add(item);
     final candidate = parser.parse(item, result);
     if (candidate != null) {
-      _candidates.add(candidate);
+      _candidates.add(_autoConfirmSingleExpiry(candidate));
     }
   }
 
@@ -248,6 +248,16 @@ class CandidateDiscoveryController {
       }
       rethrow;
     }
+  }
+
+  PassCandidate _autoConfirmSingleExpiry(PassCandidate candidate) {
+    if (candidate.confirmedExpiry != null ||
+        candidate.expiryCandidates.length != 1) {
+      return candidate;
+    }
+    return candidate.copyWith(
+      confirmedExpiry: candidate.expiryCandidates.single.date,
+    );
   }
 
   PassCandidate _requireCurrentCandidate() {

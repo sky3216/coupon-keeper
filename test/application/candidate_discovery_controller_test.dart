@@ -27,6 +27,20 @@ void main() {
     expect(await fixture.repository.listAll(), isEmpty);
   });
 
+  test('single recognized expiry is confirmed for review readiness', () async {
+    final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
+
+    await fixture.controller.processItem(_item);
+    fixture.controller.finishDiscovery();
+    fixture.controller.beginReview();
+
+    expect(
+      fixture.controller.currentCandidate?.confirmedExpiry,
+      DateTime(2026, 6, 30),
+    );
+    expect(fixture.controller.currentCandidate?.isSaveReady, isTrue);
+  });
+
   test('empty OCR reaches calm no-candidate state', () async {
     final fixture = _fixture(const OcrTextResult.empty());
 
@@ -111,12 +125,9 @@ void main() {
     fixture.controller.finishDiscovery();
     fixture.controller.beginReview();
 
-    await expectLater(
-      fixture.controller.saveCurrentCandidate(),
-      throwsA(isA<StateError>()),
-    );
-    fixture.controller.updateCurrentCandidate(
-      confirmedExpiry: DateTime(2026, 6, 30),
+    expect(
+      fixture.controller.currentCandidate?.confirmedExpiry,
+      DateTime(2026, 6, 30),
     );
     await fixture.controller.saveCurrentCandidate();
 
