@@ -8,6 +8,7 @@ import 'package:coupon_keeper/data/sqlite_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
 import 'package:coupon_keeper/platform/local_image_copy_store.dart';
 import 'package:coupon_keeper/platform/method_channel_ocr_text_recognizer.dart';
+import 'package:coupon_keeper/platform/method_channel_pro_purchase_gateway.dart';
 import 'package:coupon_keeper/platform/method_channel_reminder_scheduler.dart';
 import 'package:coupon_keeper/platform/method_channel_scan_source_picker.dart';
 import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
@@ -32,6 +33,10 @@ void main() {
     expect(
       dependencies.reminderScheduler,
       isA<MethodChannelReminderScheduler>(),
+    );
+    expect(
+      dependencies.proPurchaseGateway,
+      isA<MethodChannelProPurchaseGateway>(),
     );
   });
 

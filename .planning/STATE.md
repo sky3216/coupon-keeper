@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 6
-status: phase-5-mvp-light-complete-ready-for-phase-6
-last_updated: "2026-06-05T23:58:21.000+09:00"
+status: phase-6-entitlement-core-complete-store-follow-up
+last_updated: "2026-06-06T00:09:08.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 20
+  completed_plans: 20
   percent: 63
 ---
 
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 6 Pro Entitlement and Contextual Gates — MVP Light로 무료 active pass 한도와 contextual Pro gate부터 구현한다.
+**Current focus:** Phase 6 Pro Entitlement and Contextual Gates — entitlement core는 완료했고, 다음 조각은 실제 store purchase/restore UI/native integration이다.
 
 ## Phase Status
 
@@ -38,7 +38,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 3.1. Close gap: production local adapter wiring | UAT Pass, Security Pass | 3/3 plans complete; Android conversational UAT passed 6/6 after fixing single-expiry review readiness; security threats closed 9/9; `flutter analyze` passed; `flutter test` passed 93/93; Android debug APK build passed |
 | 4. Wallet, Detail, and Cleanup Flow | MVP Light Complete | Wallet list/detail/use-complete, barcode/image expansion, cleanup candidate state, source cleanup handoff, and source-missing recovery complete; `flutter analyze`, `flutter test` 98/98, Android debug APK build, install, and launch passed |
 | 5. Reminder Engine | MVP Light Complete | Free D-7/D-Day and Pro rule reminder engine complete; pass save/status changes sync reminders; app launch/resume reconciles reminders; Android/iOS MethodChannel local notification adapters added; `flutter analyze`, `flutter test` 110/110, Android debug APK build, install, and launch passed |
-| 6. Pro Entitlement and Contextual Gates | Pending | 0% |
+| 6. Pro Entitlement and Contextual Gates | In Progress | Entitlement core complete: free active pass limit, contextual save/cleanup/custom reminder gates, purchase/restore platform interface, and SQLite entitlement cache implemented; PRO-03/04 store purchase/restore integration remains; `flutter analyze`, `flutter test` 118/118, Android debug APK build, install, and launch passed |
 | 7. Privacy, Accessibility, Testing, and Release Readiness | Pending | 0% |
 
 ## Recent Decisions
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Phase 6 Pro Entitlement and Contextual Gates를 MVP Light로 진행한다. 무료 active pass 5개 한도, 6번째 저장 시 contextual gate, custom reminder affordance gate, restore/cache skeleton을 우선 구현한다. iOS 실행 확인은 Xcode/CoreSimulator 업데이트 또는 재설치 후 별도로 진행한다.
+Phase 6의 다음 MVP Light 조각으로 실제 store purchase/restore integration을 진행한다. `in_app_purchase` 또는 native MethodChannel 중 더 작은 안정 경로를 확인한 뒤 Pro gate 화면에서 구매/복원 성공/실패를 처리한다. iOS 실행 확인은 Xcode/CoreSimulator 업데이트 또는 재설치 후 별도로 진행한다.
 
 ## Decisions
 
@@ -105,6 +105,7 @@ Phase 6 Pro Entitlement and Contextual Gates를 MVP Light로 진행한다. 무�
 - [Phase 4]: Barcode/image expansion and cleanup candidate slice completed — Detail now opens coupon image and barcode expansion screens, `file://` image copies render in detail, used passes can move to `cleanupCandidate`, and `정리 후보` appears in Wallet/detail state; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed.
 - [Phase 4]: Source cleanup handoff and missing-source recovery completed — Cleanup candidates now explain that original files are not auto-deleted, can hand off original URI opening through native source cleanup channels, and source-missing passes stay usable through app-internal copies; `flutter analyze`, `flutter test` 98/98, Android debug APK build, install, and launch passed.
 - [Phase 5]: Reminder Engine MVP Light completed — ReminderEngine schedules free D-7/D-Day and Pro D-7/D-3/D-1/D-Day/custom rules, saved passes sync reminders, used/cleanup candidates cancel reminders, app launch/resume reconciles reminders, and Android/iOS native adapters schedule local notifications; `flutter analyze`, `flutter test` 110/110, Android debug APK build, install, and launch passed.
+- [Phase 6]: Entitlement core and contextual gates completed — Free active pass limit, contextual save/cleanup/custom reminder gates, purchase/restore platform interface, and SQLite entitlement cache are implemented; PRO-03/04 real store purchase/restore integration remains; `flutter analyze`, `flutter test` 118/118, Android debug APK build, install, and launch passed.
 
 ## Accumulated Context
 

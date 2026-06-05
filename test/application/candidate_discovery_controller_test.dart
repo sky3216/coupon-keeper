@@ -1,17 +1,23 @@
 import 'package:coupon_keeper/application/candidate_discovery_controller.dart';
 import 'package:coupon_keeper/application/guided_scan_controller.dart';
 import 'package:coupon_keeper/application/pass_candidate_parser.dart';
+import 'package:coupon_keeper/application/pro_entitlement_controller.dart';
 import 'package:coupon_keeper/application/reminder_engine.dart';
 import 'package:coupon_keeper/data/in_memory_pass_repository.dart';
+import 'package:coupon_keeper/data/in_memory_pro_entitlement_repository.dart';
 import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/data/pass_repository.dart';
 import 'package:coupon_keeper/domain/ocr_text.dart';
 import 'package:coupon_keeper/domain/pass.dart';
+import 'package:coupon_keeper/domain/pass_confidence.dart';
+import 'package:coupon_keeper/domain/pass_source_metadata.dart';
+import 'package:coupon_keeper/domain/pro_entitlement.dart';
 import 'package:coupon_keeper/domain/scan_item.dart';
 import 'package:coupon_keeper/domain/scan_source.dart';
 import 'package:coupon_keeper/platform/fake_image_copy_store.dart';
 import 'package:coupon_keeper/platform/fake_ocr_text_recognizer.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
+import 'package:coupon_keeper/platform/pro_purchase_gateway.dart';
 import 'package:coupon_keeper/platform/reminder_scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -170,6 +176,34 @@ void main() {
       ]);
     },
   );
+
+  test('sixth active pass save is blocked by contextual Pro gate', () async {
+    final repository = InMemoryPassRepository();
+    for (var index = 0; index < 5; index += 1) {
+      await repository.save(_storedPass(id: 'stored-$index'));
+    }
+    final controller = _controller(
+      _ocr(['무료 음료 쿠폰', '2026.06.30']),
+      repository: repository,
+      imageCopyStore: FakeImageCopyStore(),
+      proEntitlementController: ProEntitlementController(
+        entitlementRepository: InMemoryProEntitlementRepository(),
+        passRepository: repository,
+        purchaseGateway: _FakeProPurchaseGateway(),
+        now: () => DateTime(2026, 5, 31),
+      ),
+    );
+
+    await controller.processItem(_item);
+    controller.finishDiscovery();
+    controller.beginReview();
+
+    await expectLater(
+      controller.saveCurrentCandidate(),
+      throwsA(isA<ProGateException>()),
+    );
+    expect(await repository.listAll(), hasLength(5));
+  });
 
   test('reject advances without repository or image copy write', () async {
     final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
@@ -332,6 +366,7 @@ CandidateDiscoveryController _controller(
   required PassRepository repository,
   required FakeImageCopyStore imageCopyStore,
   ReminderEngine? reminderEngine,
+  ProEntitlementController? proEntitlementController,
 }) {
   return CandidateDiscoveryController(
     recognizer: FakeOcrTextRecognizer.success(result),
@@ -341,6 +376,7 @@ CandidateDiscoveryController _controller(
     now: () => DateTime(2026, 5, 31),
     nextId: () => 'pass-1',
     reminderEngine: reminderEngine,
+    proEntitlementController: proEntitlementController,
   );
 }
 
@@ -365,6 +401,24 @@ class _RecordingReminderScheduler implements ReminderScheduler {
   Future<void> cancelAll() async {}
 }
 
+class _FakeProPurchaseGateway implements ProPurchaseGateway {
+  @override
+  Future<ProPurchaseResult> purchasePro() async {
+    return const ProPurchaseResult(
+      isPro: true,
+      source: ProEntitlementSource.purchase,
+    );
+  }
+
+  @override
+  Future<ProPurchaseResult> restorePro() async {
+    return const ProPurchaseResult(
+      isPro: true,
+      source: ProEntitlementSource.restore,
+    );
+  }
+}
+
 class _Fixture {
   const _Fixture({
     required this.controller,
@@ -383,6 +437,37 @@ final _item = ScanItem(
   platformSourceRef: 'content://selected/coupon',
   displayName: 'coupon.jpg',
 );
+
+Pass _storedPass({required String id}) {
+  final now = DateTime(2026, 5, 1);
+  return Pass(
+    id: id,
+    type: PassType.coupon,
+    title: '저장된 쿠폰',
+    brand: 'Cafe',
+    estimatedValue: 1000,
+    expiry: DateTime(2026, 6, 30),
+    status: PassStatus.active,
+    sourceMetadata: PassSourceMetadata(
+      originalUri: 'content://selected/$id',
+      platformSourceType: 'downloads',
+      fingerprint: 'fingerprint-$id',
+      importedAt: now,
+      isAvailable: true,
+    ),
+    imageCopyPath: '/app/$id.image',
+    ocrText: null,
+    confidence: const PassConfidence(
+      expiry: 0.9,
+      value: 0.9,
+      brand: 0.9,
+      barcode: 0.1,
+      overall: 0.8,
+    ),
+    createdAt: now,
+    updatedAt: now,
+  );
+}
 
 class _FailingPassRepository extends InMemoryPassRepository {
   @override

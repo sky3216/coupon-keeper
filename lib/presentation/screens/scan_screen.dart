@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
+import '../../application/pro_entitlement_controller.dart';
 import '../../domain/scan_source.dart';
 import '../theme/app_theme.dart';
 import '../widgets/candidate_review_form.dart';
@@ -258,6 +259,12 @@ class _ScanScreenState extends State<ScanScreen> {
                   _saveError = null;
                 });
               }
+            } on ProGateException catch (error) {
+              if (mounted) {
+                setState(() {
+                  _saveError = error.message;
+                });
+              }
             } catch (_) {
               if (mounted) {
                 setState(() {
@@ -306,6 +313,12 @@ class _ScanScreenState extends State<ScanScreen> {
                   if (mounted) {
                     setState(() {
                       _saveError = null;
+                    });
+                  }
+                } on ProGateException catch (error) {
+                  if (mounted) {
+                    setState(() {
+                      _saveError = error.message;
                     });
                   }
                 } catch (_) {

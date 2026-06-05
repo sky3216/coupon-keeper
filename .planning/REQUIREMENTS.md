@@ -53,11 +53,11 @@
 
 ### Pro and Billing
 
-- [ ] **PRO-01**: Free user can keep up to 5 active passes.
-- [ ] **PRO-02**: User sees Pro gate only in context: 6th active pass, custom reminders, unlimited save affordance, or cleanup candidates.
+- [x] **PRO-01**: Free user can keep up to 5 active passes.
+- [x] **PRO-02**: User sees Pro gate only in context: 6th active pass, custom reminders, unlimited save affordance, or cleanup candidates.
 - [ ] **PRO-03**: User can purchase Pro through App Store or Google Play in-app purchase.
 - [ ] **PRO-04**: User can restore Pro purchase.
-- [ ] **PRO-05**: App caches Pro entitlement locally and keeps free features usable when store checks fail.
+- [x] **PRO-05**: App caches Pro entitlement locally and keeps free features usable when store checks fail.
 
 ### Cleanup
 
@@ -139,11 +139,11 @@
 | REM-02 | Phase 5 | Complete |
 | REM-03 | Phase 5 | Complete |
 | REM-04 | Phase 5 | Complete |
-| PRO-01 | Phase 6 | Pending |
-| PRO-02 | Phase 6 | Pending |
+| PRO-01 | Phase 6 | Complete |
+| PRO-02 | Phase 6 | Complete |
 | PRO-03 | Phase 6 | Pending |
 | PRO-04 | Phase 6 | Pending |
-| PRO-05 | Phase 6 | Pending |
+| PRO-05 | Phase 6 | Complete |
 | CLEAN-01 | Phase 4 | Complete |
 | CLEAN-02 | Phase 4 | Complete |
 | CLEAN-03 | Phase 4 | Complete |
@@ -163,4 +163,4 @@
 
 ---
 *Requirements defined: 2026-05-21*
-*Last updated: 2026-06-05 after Phase 5 MVP Light completion*
+*Last updated: 2026-06-06 after Phase 6 entitlement core slice*
