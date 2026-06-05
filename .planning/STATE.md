@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3.1
-status: mvp-light-ready-for-phase-4
-last_updated: "2026-06-05T00:00:00.000+09:00"
+current_phase: 4
+status: phase-4-wallet-detail-first-slice-complete
+last_updated: "2026-06-05T23:20:00.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 3
@@ -16,7 +16,7 @@ progress:
 # State: Coupon Keeper
 
 **Initialized:** 2026-05-21
-**Current Phase:** 3.1
+**Current Phase:** 4
 **Workflow Mode:** YOLO
 **Granularity:** MVP Light
 **Execution:** Parallel where workstreams are independent
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 4 Wallet, Detail, and Cleanup Flow
+**Current focus:** Phase 4 Wallet, Detail, and Cleanup Flow — next slice: barcode expansion and cleanup candidates
 
 ## Phase Status
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
 | 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Pass, Nyquist Pass, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; security threats closed 12/12; 7/7 requirements covered; `flutter analyze` passed; `flutter test` passed 67/67 |
 | 3.1. Close gap: production local adapter wiring | UAT Pass, Security Pass | 3/3 plans complete; Android conversational UAT passed 6/6 after fixing single-expiry review readiness; security threats closed 9/9; `flutter analyze` passed; `flutter test` passed 93/93; Android debug APK build passed |
-| 4. Wallet, Detail, and Cleanup Flow | Pending | 0% |
+| 4. Wallet, Detail, and Cleanup Flow | In Progress | Wallet list/detail/use-complete first slice complete; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
 | 7. Privacy, Accessibility, Testing, and Release Readiness | Pending | 0% |
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Proceed directly into Phase 4 implementation using MVP Light workflow; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Phase 4의 다음 MVP Light 조각으로 바코드/이미지 확대와 정리 후보 흐름을 진행한다. iOS 실행 확인은 Xcode/CoreSimulator 업데이트 또는 재설치 후 별도로 진행한다.
 
 ## Decisions
 
@@ -101,6 +101,7 @@ Proceed directly into Phase 4 implementation using MVP Light workflow; update/re
 - [Phase 3.1]: Phase 3.1 Android UAT passed — Conversational UAT passed 6/6 after adding single recognized-expiry auto-confirmation for review readiness; final automated verification passed with `flutter analyze`, `flutter test` 93/93, and Android debug APK build.
 - [Phase 3.1]: Phase 3.1 security verified — All 9 plan-time threats are mitigated with `threats_open: 0`; selected-source boundaries, local-only persistence, durable image copies, failed-item retry, and production composition are verified.
 - [Workflow]: MVP Light adopted — Default workflow now skips research, plan-check, Nyquist validation, code review, and security enforcement unless the current change specifically needs those gates; Phase 4 proceeds with short planning, implementation, automated verification, Android UAT, commit, and push.
+- [Phase 4]: Wallet/detail/use-complete first slice completed — Saved passes now appear in Wallet from the shared repository, detail opens with image panel, pass metadata, barcode panel, and a use-complete action, and used passes move to the used filter; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed.
 
 ## Accumulated Context
 
