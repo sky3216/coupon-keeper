@@ -100,6 +100,7 @@ Cross-cutting constraints:
 
 **Goal:** Make saved passes usable at the store and prevent used-source clutter without auto-deletion.
 **Mode:** mvp
+**Status:** MVP Light complete as of 2026-06-05.
 
 **Requirements:** WALL-01, WALL-02, WALL-03, WALL-04, WALL-05, WALL-06, CLEAN-01, CLEAN-02, CLEAN-03, CLEAN-04
 

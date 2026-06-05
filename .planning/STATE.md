@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-status: phase-4-barcode-cleanup-slice-complete
-last_updated: "2026-06-05T23:32:00.000+09:00"
+current_phase: 5
+status: phase-4-complete-ready-for-phase-5
+last_updated: "2026-06-05T23:47:02.000+09:00"
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 15
-  completed_plans: 15
-  percent: 38
+  completed_phases: 4
+  total_plans: 18
+  completed_plans: 18
+  percent: 50
 ---
 
 # State: Coupon Keeper
 
 **Initialized:** 2026-05-21
-**Current Phase:** 4
+**Current Phase:** 5
 **Workflow Mode:** YOLO
 **Granularity:** MVP Light
 **Execution:** Parallel where workstreams are independent
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 4 Wallet, Detail, and Cleanup Flow — next slice: source cleanup handoff and missing-source recovery
+**Current focus:** Phase 5 Reminder Engine — MVP Light로 무료 D-7/D-Day 로컬 알림과 launch/resume 정합성부터 구현한다.
 
 ## Phase Status
 
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 2. Guided Scan Intake | UAT Pass | 5/5 plans complete; 6/6 UAT checks passed on Android; `flutter analyze` passed; `flutter test` passed 37/37 |
 | 3. OCR Candidate Review and Discovery Report | UAT Pass, Security Pass, Nyquist Pass, iOS Env Follow-up | 4/4 plans complete; Android conversational UAT passed 7/7; security threats closed 12/12; 7/7 requirements covered; `flutter analyze` passed; `flutter test` passed 67/67 |
 | 3.1. Close gap: production local adapter wiring | UAT Pass, Security Pass | 3/3 plans complete; Android conversational UAT passed 6/6 after fixing single-expiry review readiness; security threats closed 9/9; `flutter analyze` passed; `flutter test` passed 93/93; Android debug APK build passed |
-| 4. Wallet, Detail, and Cleanup Flow | In Progress | Wallet list/detail/use-complete complete; barcode/image expansion and cleanup candidate state complete; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed |
+| 4. Wallet, Detail, and Cleanup Flow | MVP Light Complete | Wallet list/detail/use-complete, barcode/image expansion, cleanup candidate state, source cleanup handoff, and source-missing recovery complete; `flutter analyze`, `flutter test` 98/98, Android debug APK build, install, and launch passed |
 | 5. Reminder Engine | Pending | 0% |
 | 6. Pro Entitlement and Contextual Gates | Pending | 0% |
 | 7. Privacy, Accessibility, Testing, and Release Readiness | Pending | 0% |
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Phase 4의 다음 MVP Light 조각으로 정리 후보의 원본 정리 handoff와 원본 누락 복구 상태를 진행한다. iOS 실행 확인은 Xcode/CoreSimulator 업데이트 또는 재설치 후 별도로 진행한다.
+Phase 5 Reminder Engine를 MVP Light로 진행한다. 무료 사용자 기준 D-7/D-Day 로컬 알림 예약, pass 저장/변경 시 재예약, 앱 launch/resume 시 stale reminder 정합성 복구를 먼저 구현한다. iOS 실행 확인은 Xcode/CoreSimulator 업데이트 또는 재설치 후 별도로 진행한다.
 
 ## Decisions
 
@@ -103,6 +103,7 @@ Phase 4의 다음 MVP Light 조각으로 정리 후보의 원본 정리 handoff�
 - [Workflow]: MVP Light adopted — Default workflow now skips research, plan-check, Nyquist validation, code review, and security enforcement unless the current change specifically needs those gates; Phase 4 proceeds with short planning, implementation, automated verification, Android UAT, commit, and push.
 - [Phase 4]: Wallet/detail/use-complete first slice completed — Saved passes now appear in Wallet from the shared repository, detail opens with image panel, pass metadata, barcode panel, and a use-complete action, and used passes move to the used filter; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed.
 - [Phase 4]: Barcode/image expansion and cleanup candidate slice completed — Detail now opens coupon image and barcode expansion screens, `file://` image copies render in detail, used passes can move to `cleanupCandidate`, and `정리 후보` appears in Wallet/detail state; `flutter analyze`, `flutter test` 94/94, Android debug APK build, and emulator smoke passed.
+- [Phase 4]: Source cleanup handoff and missing-source recovery completed — Cleanup candidates now explain that original files are not auto-deleted, can hand off original URI opening through native source cleanup channels, and source-missing passes stay usable through app-internal copies; `flutter analyze`, `flutter test` 98/98, Android debug APK build, install, and launch passed.
 
 ## Accumulated Context
 

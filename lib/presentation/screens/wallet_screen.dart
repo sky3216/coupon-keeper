@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../application/wallet_controller.dart';
 import '../../data/pass_repository.dart';
 import '../../domain/pass.dart';
+import '../../platform/method_channel_source_cleanup_launcher.dart';
+import '../../platform/source_cleanup_launcher.dart';
 import '../theme/app_theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pass_row.dart';
@@ -14,12 +16,14 @@ class WalletScreen extends StatefulWidget {
   const WalletScreen({
     required this.onScanSelected,
     this.passRepository,
+    this.sourceCleanupLauncher,
     this.isSelected = false,
     super.key,
   });
 
   final VoidCallback onScanSelected;
   final PassRepository? passRepository;
+  final SourceCleanupLauncher? sourceCleanupLauncher;
   final bool isSelected;
 
   @override
@@ -155,6 +159,9 @@ class _WalletScreenState extends State<WalletScreen> {
       MaterialPageRoute(
         builder: (_) => PassDetailScreen(
           pass: pass,
+          sourceCleanupLauncher:
+              widget.sourceCleanupLauncher ??
+              MethodChannelSourceCleanupLauncher(),
           onMarkUsed: () async {
             final nextState = await controller.markUsed(pass);
             if (mounted) {
@@ -185,12 +192,14 @@ class _WalletScreenState extends State<WalletScreen> {
 class PassDetailScreen extends StatefulWidget {
   const PassDetailScreen({
     required this.pass,
+    required this.sourceCleanupLauncher,
     required this.onMarkUsed,
     required this.onMarkCleanupCandidate,
     super.key,
   });
 
   final Pass pass;
+  final SourceCleanupLauncher sourceCleanupLauncher;
   final Future<void> Function() onMarkUsed;
   final Future<void> Function() onMarkCleanupCandidate;
 
@@ -252,6 +261,13 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
               label: '원본 상태',
               value: sourceMissing ? '원본 파일 확인 필요' : '앱 내부 사본 보관됨',
             ),
+            if (sourceMissing) ...[
+              const SizedBox(height: 8),
+              Text(
+                '앱 내부 사본으로 계속 사용할 수 있어요',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
             const SizedBox(height: 20),
             _BarcodePanel(
               title: pass.title,
@@ -278,6 +294,11 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
               const SizedBox(height: 16),
               const Row(
                 children: [StatusChip(kind: StatusChipKind.cleanupCandidate)],
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: _showSourceCleanupHandoff,
+                child: const Text('원본 정리 안내'),
               ),
             ],
           ],
@@ -324,6 +345,59 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
     Navigator.of(context).push<void>(
       MaterialPageRoute(builder: (_) => _ExpandedBarcodeScreen(pass: pass)),
     );
+  }
+
+  void _showSourceCleanupHandoff() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  '원본은 자동으로 삭제하지 않아요',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '원본 앱이나 시스템 파일 화면에서 직접 정리해 주세요.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 24),
+                FilledButton.tonalIcon(
+                  onPressed: () => _openOriginalSource(context),
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('원본 앱 열기'),
+                ),
+                const SizedBox(height: 8),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('확인'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openOriginalSource(BuildContext sheetContext) async {
+    final opened = await widget.sourceCleanupLauncher.openSource(
+      widget.pass.sourceMetadata.originalUri,
+    );
+    if (!mounted || !sheetContext.mounted) {
+      return;
+    }
+    if (!opened) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('원본 앱을 열 수 없어요. 직접 정리해 주세요.')),
+      );
+    }
   }
 }
 

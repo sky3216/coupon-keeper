@@ -1,6 +1,7 @@
 package com.example.coupon_keeper
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Rect
@@ -25,6 +26,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val ocrChannelName = "coupon_keeper/ocr"
     private val sourcePickerChannelName = "coupon_keeper/source_picker"
+    private val sourceCleanupChannelName = "coupon_keeper/source_cleanup"
     private val photoRequestCode = 4101
     private val documentRequestCode = 4102
     private val folderRequestCode = 4103
@@ -72,6 +74,36 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, sourceCleanupChannelName)
+            .setMethodCallHandler { call, result ->
+                if (call.method != "openSource") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+
+                val originalUri = call.argument<String>("originalUri")
+                if (originalUri.isNullOrBlank()) {
+                    result.success(false)
+                    return@setMethodCallHandler
+                }
+                result.success(openOriginalSource(originalUri))
+            }
+    }
+
+    private fun openOriginalSource(originalUri: String): Boolean {
+        val uri = Uri.parse(originalUri)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        return try {
+            startActivity(intent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
     }
 
     private fun pickSources(sourceType: String, result: MethodChannel.Result) {
