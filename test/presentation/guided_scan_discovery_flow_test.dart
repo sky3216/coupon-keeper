@@ -61,6 +61,57 @@ void main() {
     expect(find.text('건너뛴 후보 1개'), findsOneWidget);
     expect(await repository.listAll(), hasLength(1));
   });
+
+  testWidgets('saved coupon is visible in Wallet and can be marked used', (
+    tester,
+  ) async {
+    final repository = InMemoryPassRepository();
+    final discovery = CandidateDiscoveryController(
+      recognizer: FakeOcrTextRecognizer.success(_ocr),
+      parser: const PassCandidateParser(),
+      imageCopyStore: FakeImageCopyStore(),
+      passRepository: repository,
+      now: () => DateTime(2026, 5, 31),
+      nextId: () => 'pass-1',
+    );
+    final guided = GuidedScanController(
+      picker: FakeScanSourcePicker.downloads([_item]),
+      fingerprintCache: InMemoryScanFingerprintCache(),
+      processItem: discovery.processItem,
+    );
+    await tester.pumpWidget(
+      CouponKeeperApp(scanController: guided, discoveryController: discovery),
+    );
+
+    await tester.tap(find.text('숨어 있는 쿠폰 찾기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('다운로드/파일에서 찾기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('후보 검토 시작'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('2026.06.30'));
+    await tester.tap(find.text('2026.06.30'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('이 쿠폰 저장'));
+    await tester.tap(find.text('이 쿠폰 저장'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Wallet에서 보기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('무료 음료 쿠폰'), findsOneWidget);
+    expect(find.text('2026.06.30까지'), findsOneWidget);
+
+    await tester.tap(find.text('무료 음료 쿠폰'));
+    await tester.pumpAndSettle();
+    expect(find.text('이 쿠폰 사용 완료'), findsOneWidget);
+
+    await tester.tap(find.text('이 쿠폰 사용 완료'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('사용 완료'), findsOneWidget);
+    expect((await repository.getById('pass-1'))?.status.name, 'used');
+  });
 }
 
 final _item = ScanItem(

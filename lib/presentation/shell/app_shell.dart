@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../application/coupon_keeper_dependencies.dart';
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
+import '../../data/pass_repository.dart';
 import '../screens/scan_screen.dart';
 import '../screens/today_screen.dart';
 import '../screens/wallet_screen.dart';
@@ -12,12 +13,14 @@ class AppShell extends StatefulWidget {
     this.dependencies,
     this.scanController,
     this.discoveryController,
+    this.passRepository,
     super.key,
   });
 
   final CouponKeeperDependencies? dependencies;
   final GuidedScanController? scanController;
   final CandidateDiscoveryController? discoveryController;
+  final PassRepository? passRepository;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -33,6 +36,10 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final dependencies = widget.dependencies;
+    final passRepository =
+        dependencies?.passRepository ??
+        widget.passRepository ??
+        widget.discoveryController?.passRepository;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -40,7 +47,11 @@ class _AppShellState extends State<AppShell> {
           index: _selectedIndex,
           children: [
             TodayScreen(onScanSelected: _selectScan),
-            WalletScreen(onScanSelected: _selectScan),
+            WalletScreen(
+              onScanSelected: _selectScan,
+              passRepository: passRepository,
+              isSelected: _selectedIndex == 1,
+            ),
             ScanScreen(
               controller: dependencies?.scanController ?? widget.scanController,
               discoveryController:
