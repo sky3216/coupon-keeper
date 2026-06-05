@@ -1,6 +1,7 @@
 import 'package:coupon_keeper/application/candidate_discovery_controller.dart';
 import 'package:coupon_keeper/application/guided_scan_controller.dart';
 import 'package:coupon_keeper/application/pass_candidate_parser.dart';
+import 'package:coupon_keeper/application/reminder_engine.dart';
 import 'package:coupon_keeper/data/in_memory_pass_repository.dart';
 import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/data/pass_repository.dart';
@@ -11,6 +12,7 @@ import 'package:coupon_keeper/domain/scan_source.dart';
 import 'package:coupon_keeper/platform/fake_image_copy_store.dart';
 import 'package:coupon_keeper/platform/fake_ocr_text_recognizer.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
+import 'package:coupon_keeper/platform/reminder_scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -139,6 +141,35 @@ void main() {
     expect(fixture.imageCopyStore.copies.values, ['content://selected/coupon']);
     expect(fixture.controller.status, CandidateDiscoveryStatus.completed);
   });
+
+  test(
+    'explicit candidate save syncs reminders after repository save',
+    () async {
+      final repository = InMemoryPassRepository();
+      final scheduler = _RecordingReminderScheduler();
+      final controller = _controller(
+        _ocr(['무료 음료 쿠폰', '2026.06.30']),
+        repository: repository,
+        imageCopyStore: FakeImageCopyStore(),
+        reminderEngine: ReminderEngine(
+          passRepository: repository,
+          scheduler: scheduler,
+          now: () => DateTime(2026, 5, 31),
+        ),
+      );
+
+      await controller.processItem(_item);
+      controller.finishDiscovery();
+      controller.beginReview();
+      await controller.saveCurrentCandidate();
+
+      expect(scheduler.cancelledPasses, ['pass-1']);
+      expect(scheduler.scheduled.map((request) => request.id), [
+        'pass-1:d-7',
+        'pass-1:d-day',
+      ]);
+    },
+  );
 
   test('reject advances without repository or image copy write', () async {
     final fixture = _fixture(_ocr(['무료 음료 쿠폰', '2026.06.30']));
@@ -300,6 +331,7 @@ CandidateDiscoveryController _controller(
   OcrTextResult result, {
   required PassRepository repository,
   required FakeImageCopyStore imageCopyStore,
+  ReminderEngine? reminderEngine,
 }) {
   return CandidateDiscoveryController(
     recognizer: FakeOcrTextRecognizer.success(result),
@@ -308,7 +340,29 @@ CandidateDiscoveryController _controller(
     passRepository: repository,
     now: () => DateTime(2026, 5, 31),
     nextId: () => 'pass-1',
+    reminderEngine: reminderEngine,
   );
+}
+
+class _RecordingReminderScheduler implements ReminderScheduler {
+  final scheduled = <ReminderRequest>[];
+  final cancelledPasses = <String>[];
+
+  @override
+  Future<bool> requestAuthorization() async => true;
+
+  @override
+  Future<void> schedule(ReminderRequest request) async {
+    scheduled.add(request);
+  }
+
+  @override
+  Future<void> cancelForPass(String passId) async {
+    cancelledPasses.add(passId);
+  }
+
+  @override
+  Future<void> cancelAll() async {}
 }
 
 class _Fixture {

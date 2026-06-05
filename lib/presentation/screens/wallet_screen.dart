@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../application/wallet_controller.dart';
+import '../../application/reminder_engine.dart';
 import '../../data/pass_repository.dart';
 import '../../domain/pass.dart';
 import '../../platform/method_channel_source_cleanup_launcher.dart';
@@ -16,6 +17,7 @@ class WalletScreen extends StatefulWidget {
   const WalletScreen({
     required this.onScanSelected,
     this.passRepository,
+    this.reminderEngine,
     this.sourceCleanupLauncher,
     this.isSelected = false,
     super.key,
@@ -23,6 +25,7 @@ class WalletScreen extends StatefulWidget {
 
   final VoidCallback onScanSelected;
   final PassRepository? passRepository;
+  final ReminderEngine? reminderEngine;
   final SourceCleanupLauncher? sourceCleanupLauncher;
   final bool isSelected;
 
@@ -47,7 +50,8 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   void didUpdateWidget(covariant WalletScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.passRepository != widget.passRepository) {
+    if (oldWidget.passRepository != widget.passRepository ||
+        oldWidget.reminderEngine != widget.reminderEngine) {
       _attachController();
       _load();
     } else if (!oldWidget.isSelected && widget.isSelected) {
@@ -135,7 +139,10 @@ class _WalletScreenState extends State<WalletScreen> {
     final repository = widget.passRepository;
     _controller = repository == null
         ? null
-        : WalletController(repository: repository);
+        : WalletController(
+            repository: repository,
+            reminderEngine: widget.reminderEngine,
+          );
   }
 
   Future<void> _load() async {

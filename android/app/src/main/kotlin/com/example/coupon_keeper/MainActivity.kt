@@ -1,8 +1,13 @@
 package com.example.coupon_keeper
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Rect
 import android.net.Uri
@@ -27,11 +32,15 @@ class MainActivity : FlutterActivity() {
     private val ocrChannelName = "coupon_keeper/ocr"
     private val sourcePickerChannelName = "coupon_keeper/source_picker"
     private val sourceCleanupChannelName = "coupon_keeper/source_cleanup"
+    private val remindersChannelName = "coupon_keeper/reminders"
     private val photoRequestCode = 4101
     private val documentRequestCode = 4102
     private val folderRequestCode = 4103
+    private val notificationPermissionRequestCode = 4104
     private var pendingPickResult: MethodChannel.Result? = null
     private var pendingSourceType: String? = null
+    private var pendingReminderPermissionResult: MethodChannel.Result? = null
+    private val allReminderIdsKey = "all"
     private val retryHandles = mutableMapOf<String, RetryableSource>()
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -88,6 +97,40 @@ class MainActivity : FlutterActivity() {
                 }
                 result.success(openOriginalSource(originalUri))
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, remindersChannelName)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "requestAuthorization" -> requestReminderAuthorization(result)
+                    "schedule" -> scheduleReminder(call.arguments, result)
+                    "cancelForPass" -> {
+                        val passId = call.argument<String>("passId")
+                        if (passId.isNullOrBlank()) {
+                            result.success(null)
+                            return@setMethodCallHandler
+                        }
+                        cancelRemindersForPass(passId)
+                        result.success(null)
+                    }
+                    "cancelAll" -> {
+                        cancelAllReminders()
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == notificationPermissionRequestCode) {
+            val result = pendingReminderPermissionResult ?: return
+            pendingReminderPermissionResult = null
+            result.success(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
+        }
     }
 
     private fun openOriginalSource(originalUri: String): Boolean {
@@ -104,6 +147,117 @@ class MainActivity : FlutterActivity() {
         } catch (_: SecurityException) {
             false
         }
+    }
+
+    private fun requestReminderAuthorization(result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT < 33 ||
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        ) {
+            result.success(true)
+            return
+        }
+        if (pendingReminderPermissionResult != null) {
+            result.error("permission-request-busy", "A notification permission request is already open.", null)
+            return
+        }
+        pendingReminderPermissionResult = result
+        requestPermissions(
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            notificationPermissionRequestCode,
+        )
+    }
+
+    private fun scheduleReminder(arguments: Any?, result: MethodChannel.Result) {
+        val payload = arguments as? Map<*, *>
+        val id = payload?.get("id") as? String
+        val passId = payload?.get("passId") as? String
+        val title = payload?.get("title") as? String
+        val body = payload?.get("body") as? String
+        val triggerAtMillis = (payload?.get("triggerAtMillis") as? Number)?.toLong()
+        if (id.isNullOrBlank() || passId.isNullOrBlank() || title.isNullOrBlank() ||
+            body.isNullOrBlank() || triggerAtMillis == null
+        ) {
+            result.error("invalid-reminder", "A reminder id, pass id, title, body, and trigger time are required.", null)
+            return
+        }
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(
+            AlarmManager.RTC_WAKEUP,
+            triggerAtMillis,
+            reminderPendingIntent(id, passId, title, body),
+        )
+        storeReminder(id, passId)
+        result.success(null)
+    }
+
+    private fun cancelRemindersForPass(passId: String) {
+        val prefs = reminderPreferences()
+        val ids = prefs.getStringSet(passReminderIdsKey(passId), emptySet()).orEmpty()
+        val allIds = prefs.getStringSet(allReminderIdsKey, emptySet()).orEmpty().toMutableSet()
+        for (id in ids) {
+            cancelReminder(id)
+            allIds.remove(id)
+        }
+        prefs.edit()
+            .putStringSet(allReminderIdsKey, allIds)
+            .remove(passReminderIdsKey(passId))
+            .apply()
+    }
+
+    private fun cancelAllReminders() {
+        val prefs = reminderPreferences()
+        val ids = prefs.getStringSet(allReminderIdsKey, emptySet()).orEmpty()
+        for (id in ids) {
+            cancelReminder(id)
+        }
+        prefs.edit().clear().apply()
+    }
+
+    private fun cancelReminder(id: String) {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(reminderPendingIntent(id, null, null, null))
+    }
+
+    private fun reminderPendingIntent(
+        id: String,
+        passId: String?,
+        title: String?,
+        body: String?,
+    ): PendingIntent {
+        val intent = Intent(this, ReminderReceiver::class.java).apply {
+            putExtra("id", id)
+            putExtra("passId", passId)
+            putExtra("title", title)
+            putExtra("body", body)
+        }
+        return PendingIntent.getBroadcast(
+            this,
+            id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or pendingIntentImmutableFlag(),
+        )
+    }
+
+    private fun storeReminder(id: String, passId: String) {
+        val prefs = reminderPreferences()
+        val allIds = prefs.getStringSet(allReminderIdsKey, emptySet()).orEmpty().toMutableSet()
+        val passIds = prefs.getStringSet(passReminderIdsKey(passId), emptySet()).orEmpty().toMutableSet()
+        allIds.add(id)
+        passIds.add(id)
+        prefs.edit()
+            .putStringSet(allReminderIdsKey, allIds)
+            .putStringSet(passReminderIdsKey(passId), passIds)
+            .apply()
+    }
+
+    private fun reminderPreferences() =
+        getSharedPreferences("coupon_keeper_reminders", Context.MODE_PRIVATE)
+
+    private fun passReminderIdsKey(passId: String) = "pass:$passId"
+
+    private fun pendingIntentImmutableFlag(): Int {
+        return if (Build.VERSION.SDK_INT >= 23) PendingIntent.FLAG_IMMUTABLE else 0
     }
 
     private fun pickSources(sourceType: String, result: MethodChannel.Result) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../application/coupon_keeper_dependencies.dart';
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
+import '../../application/reminder_engine.dart';
 import '../../data/pass_repository.dart';
 import '../screens/scan_screen.dart';
 import '../screens/today_screen.dart';
@@ -14,6 +15,7 @@ class AppShell extends StatefulWidget {
     this.scanController,
     this.discoveryController,
     this.passRepository,
+    this.reminderEngine,
     super.key,
   });
 
@@ -21,6 +23,7 @@ class AppShell extends StatefulWidget {
   final GuidedScanController? scanController;
   final CandidateDiscoveryController? discoveryController;
   final PassRepository? passRepository;
+  final ReminderEngine? reminderEngine;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -40,6 +43,8 @@ class _AppShellState extends State<AppShell> {
         dependencies?.passRepository ??
         widget.passRepository ??
         widget.discoveryController?.passRepository;
+    final reminderEngine =
+        dependencies?.reminderEngine ?? widget.reminderEngine;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -50,6 +55,7 @@ class _AppShellState extends State<AppShell> {
             WalletScreen(
               onScanSelected: _selectScan,
               passRepository: passRepository,
+              reminderEngine: reminderEngine,
               isSelected: _selectedIndex == 1,
             ),
             ScanScreen(

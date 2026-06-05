@@ -10,6 +10,7 @@ import '../domain/scan_item.dart';
 import '../platform/image_copy_store.dart';
 import '../platform/ocr_text_recognizer.dart';
 import 'pass_candidate_parser.dart';
+import 'reminder_engine.dart';
 
 enum CandidateDiscoveryStatus {
   collecting,
@@ -28,6 +29,7 @@ class CandidateDiscoveryController {
     required this.passRepository,
     required this.now,
     required this.nextId,
+    this.reminderEngine,
   });
 
   final OcrTextRecognizer recognizer;
@@ -36,6 +38,7 @@ class CandidateDiscoveryController {
   final PassRepository passRepository;
   final DateTime Function() now;
   final String Function() nextId;
+  final ReminderEngine? reminderEngine;
 
   final List<PassCandidate> _candidates = [];
   final List<ScanItem> _processedItems = [];
@@ -219,34 +222,46 @@ class CandidateDiscoveryController {
       id: id,
     );
     try {
-      await passRepository.save(
-        Pass(
-          id: id,
-          type: PassType.coupon,
-          title: title.trim(),
-          brand: brand?.trim(),
-          estimatedValue: estimatedValue,
-          expiry: expiry,
-          status: PassStatus.active,
-          sourceMetadata: PassSourceMetadata(
-            originalUri: sourceRef,
-            platformSourceType: source.sourceType.name,
-            fingerprint: source.fingerprintInput,
-            importedAt: timestamp,
-            isAvailable: true,
-          ),
-          imageCopyPath: imageCopy.path,
-          ocrText: ocrText,
-          confidence: confidence,
-          createdAt: timestamp,
-          updatedAt: timestamp,
+      final pass = Pass(
+        id: id,
+        type: PassType.coupon,
+        title: title.trim(),
+        brand: brand?.trim(),
+        estimatedValue: estimatedValue,
+        expiry: expiry,
+        status: PassStatus.active,
+        sourceMetadata: PassSourceMetadata(
+          originalUri: sourceRef,
+          platformSourceType: source.sourceType.name,
+          fingerprint: source.fingerprintInput,
+          importedAt: timestamp,
+          isAvailable: true,
         ),
+        imageCopyPath: imageCopy.path,
+        ocrText: ocrText,
+        confidence: confidence,
+        createdAt: timestamp,
+        updatedAt: timestamp,
       );
+      await passRepository.save(pass);
+      await _syncReminders(pass);
     } catch (_) {
       if (imageCopy.created) {
         await imageCopyStore.deleteCopy(imageCopy.path);
       }
       rethrow;
+    }
+  }
+
+  Future<void> _syncReminders(Pass pass) async {
+    final engine = reminderEngine;
+    if (engine == null) {
+      return;
+    }
+    try {
+      await engine.syncPass(pass);
+    } catch (_) {
+      // Saving a coupon should not fail just because local notifications failed.
     }
   }
 

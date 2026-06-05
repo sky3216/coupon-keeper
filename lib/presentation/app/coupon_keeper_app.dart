@@ -24,7 +24,8 @@ class CouponKeeperApp extends StatefulWidget {
   State<CouponKeeperApp> createState() => _CouponKeeperAppState();
 }
 
-class _CouponKeeperAppState extends State<CouponKeeperApp> {
+class _CouponKeeperAppState extends State<CouponKeeperApp>
+    with WidgetsBindingObserver {
   Future<CouponKeeperDependencies>? _productionDependencies;
   CouponKeeperDependencies? _ownedDependencies;
 
@@ -36,6 +37,7 @@ class _CouponKeeperAppState extends State<CouponKeeperApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _configureDependencies();
   }
 
@@ -51,11 +53,22 @@ class _CouponKeeperAppState extends State<CouponKeeperApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     final owned = _ownedDependencies;
     if (owned != null) {
       unawaited(owned.dispose());
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final owned = _ownedDependencies;
+      if (owned != null) {
+        unawaited(owned.reminderEngine.reconcile());
+      }
+    }
   }
 
   @override
@@ -112,6 +125,9 @@ class _CouponKeeperAppState extends State<CouponKeeperApp> {
   Future<CouponKeeperDependencies> _loadProductionDependencies() async {
     final dependencies = await CouponKeeperDependencies.production();
     _ownedDependencies = dependencies;
+    unawaited(
+      dependencies.reminderEngine.reconcile(requestAuthorization: true),
+    );
     return dependencies;
   }
 
