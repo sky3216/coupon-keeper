@@ -50,6 +50,18 @@
 
 모든 작업은 시작 전에 작업 전용 브랜치를 만든 뒤 진행한다. 작업이 끝나면 관련 파일만 명시적으로 커밋하고, 커밋 후에는 해당 브랜치를 원격 저장소에 push 완료한다.
 
+## MVP Light Workflow
+
+MVP를 빠르게 완성해야 할 때는 기본 GSD 흐름을 가볍게 운영한다. 기본 흐름은 `짧은 목표 확인 → 구현 → flutter analyze/test/build → 필요한 Android UAT → commit/push`다.
+
+다음 작업은 조건부로만 실행한다.
+
+- `$gsd-secure-phase`: 권한, 저장소, 결제, 로그인, 네트워크, 개인정보 경계가 바뀔 때.
+- `$gsd-validate-phase`: milestone 종료 전, 또는 테스트/요구사항 커버리지 gap이 의심될 때.
+- `$gsd-ui-phase`: 새 주요 화면이나 큰 UX 방향이 생길 때.
+
+MVP Light에서도 로컬-first, 선택한 파일만 처리, 사용자 확인 후 저장, 앱 내부 이미지 사본, iOS/Android 지원 구조는 유지한다.
+
 ## Planned App Structure
 
 ```text

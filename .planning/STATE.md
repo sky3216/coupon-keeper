@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 3.1
-status: phase-3.1-uat-pass-security-pass
-last_updated: "2026-06-04T23:05:00.000+09:00"
+status: mvp-light-ready-for-phase-4
+last_updated: "2026-06-05T00:00:00.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 3
@@ -18,7 +18,7 @@ progress:
 **Initialized:** 2026-05-21
 **Current Phase:** 3.1
 **Workflow Mode:** YOLO
-**Granularity:** Standard
+**Granularity:** MVP Light
 **Execution:** Parallel where workstreams are independent
 
 ## Project Reference
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** Phase 3.1 validation — production local adapter wiring
+**Current focus:** Phase 4 Wallet, Detail, and Cleanup Flow
 
 ## Phase Status
 
@@ -56,9 +56,26 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 - Android toolchain blocker was remediated: cmdline-tools installed, SDK licenses accepted, Android SDK 36/build tools available, Flutter/sdkmanager PATH added to `/Users/sora/.zshrc`, the full Pixel_8_API_33 AVD data partition was wiped, and Coupon Keeper passed visual UAT on `emulator-5554`.
 - iOS simulator launch remains blocked outside app code on macOS 26.5 with Xcode 16.1: Xcode/CoreSimulator fails to spawn `AssetCatalogSimulatorAgent`, and system logs show AMFI library validation/code signature rejection for the Xcode tool binary.
 
+## MVP Light Workflow
+
+Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가볍게 전환했다.
+
+기본 흐름:
+
+1. 다음으로 가치가 큰 phase 또는 gap을 고른다.
+2. 필요한 컨텍스트만 짧게 확인한다.
+3. 구현, `flutter analyze`, 관련 테스트, Android debug build/UAT를 진행한다.
+4. 작업 단위가 완료되면 커밋하고 현재 브랜치를 push한다.
+
+조건부로만 실행:
+
+- `$gsd-secure-phase`: 권한, 저장소, 결제, 로그인, 네트워크, 개인정보 경계가 바뀔 때.
+- `$gsd-validate-phase`: milestone 종료 전, 또는 테스트/요구사항 커버리지 gap이 의심될 때.
+- `$gsd-ui-phase`: 새 주요 화면이나 큰 UX 방향이 생길 때.
+
 ## Next Command
 
-Run `$gsd-validate-phase 3.1` next; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
+Proceed directly into Phase 4 implementation using MVP Light workflow; update/reinstall Xcode/CoreSimulator separately for iOS launch verification.
 
 ## Decisions
 
@@ -83,6 +100,7 @@ Run `$gsd-validate-phase 3.1` next; update/reinstall Xcode/CoreSimulator separat
 - [Phase 3.1]: Phase 3.1 implementation complete — SQLite persistence, reusable original-byte app-internal image copies, native selected-source staging, failed-item-only retry, and real production default composition are implemented; automated verification passed with `flutter analyze`, `flutter test` 92/92, and Android debug APK build.
 - [Phase 3.1]: Phase 3.1 Android UAT passed — Conversational UAT passed 6/6 after adding single recognized-expiry auto-confirmation for review readiness; final automated verification passed with `flutter analyze`, `flutter test` 93/93, and Android debug APK build.
 - [Phase 3.1]: Phase 3.1 security verified — All 9 plan-time threats are mitigated with `threats_open: 0`; selected-source boundaries, local-only persistence, durable image copies, failed-item retry, and production composition are verified.
+- [Workflow]: MVP Light adopted — Default workflow now skips research, plan-check, Nyquist validation, code review, and security enforcement unless the current change specifically needs those gates; Phase 4 proceeds with short planning, implementation, automated verification, Android UAT, commit, and push.
 
 ## Accumulated Context
 
