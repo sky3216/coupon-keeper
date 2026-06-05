@@ -62,7 +62,7 @@ void main() {
     expect(await repository.listAll(), hasLength(1));
   });
 
-  testWidgets('saved coupon is visible in Wallet and can be marked used', (
+  testWidgets('saved coupon opens detail, expands panels, and enters cleanup', (
     tester,
   ) async {
     final repository = InMemoryPassRepository();
@@ -106,11 +106,33 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('이 쿠폰 사용 완료'), findsOneWidget);
 
+    await tester.tap(find.byTooltip('쿠폰 이미지 확대'));
+    await tester.pumpAndSettle();
+    expect(find.text('쿠폰 이미지'), findsOneWidget);
+    await tester.tap(find.byTooltip('닫기'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byTooltip('바코드 확대'));
+    await tester.tap(find.byTooltip('바코드 확대'));
+    await tester.pumpAndSettle();
+    expect(find.text('바코드 확대'), findsOneWidget);
+    await tester.tap(find.byTooltip('닫기'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('이 쿠폰 사용 완료'));
     await tester.pumpAndSettle();
 
     expect(find.text('사용 완료'), findsOneWidget);
     expect((await repository.getById('pass-1'))?.status.name, 'used');
+
+    await tester.tap(find.text('정리 후보로 표시'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('정리 후보'), findsOneWidget);
+    expect(
+      (await repository.getById('pass-1'))?.status.name,
+      'cleanupCandidate',
+    );
   });
 }
 
