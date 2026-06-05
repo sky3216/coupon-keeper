@@ -37,12 +37,12 @@
 
 ### Wallet and Pass Detail
 
-- [ ] **WALL-01**: User can view active passes in Wallet.
-- [ ] **WALL-02**: User can filter Wallet by active, used, expired, and cleanup candidates.
-- [ ] **WALL-03**: User can open pass detail and see a large image and barcode area.
-- [ ] **WALL-04**: User can tap the barcode area to expand it for store use.
-- [ ] **WALL-05**: User can mark a pass as used.
-- [ ] **WALL-06**: User can see state chips such as D-7, today expiry, used, expired, confirmation needed, and source missing.
+- [x] **WALL-01**: User can view active passes in Wallet.
+- [x] **WALL-02**: User can filter Wallet by active, used, expired, and cleanup candidates.
+- [x] **WALL-03**: User can open pass detail and see a large image and barcode area.
+- [x] **WALL-04**: User can tap the barcode area to expand it for store use.
+- [x] **WALL-05**: User can mark a pass as used.
+- [x] **WALL-06**: User can see state chips such as D-7, today expiry, used, expired, confirmation needed, and source missing.
 
 ### Reminders
 
@@ -61,10 +61,10 @@
 
 ### Cleanup
 
-- [ ] **CLEAN-01**: User can move a used pass into cleanup candidates.
-- [ ] **CLEAN-02**: User can review cleanup candidates without automatic source deletion.
-- [ ] **CLEAN-03**: User can hand off source cleanup to the system UI or original app when available.
-- [ ] **CLEAN-04**: User sees a source-missing state when the original file is gone.
+- [x] **CLEAN-01**: User can move a used pass into cleanup candidates.
+- [x] **CLEAN-02**: User can review cleanup candidates without automatic source deletion.
+- [x] **CLEAN-03**: User can hand off source cleanup to the system UI or original app when available.
+- [x] **CLEAN-04**: User sees a source-missing state when the original file is gone.
 
 ### Privacy, Accessibility, and Quality
 
@@ -129,12 +129,12 @@
 | OCR-04 | Phase 3 | Complete |
 | OCR-05 | Phase 3 | Complete |
 | OCR-06 | Phase 3 | Complete |
-| WALL-01 | Phase 4 | Pending |
-| WALL-02 | Phase 4 | Pending |
-| WALL-03 | Phase 4 | Pending |
-| WALL-04 | Phase 4 | Pending |
-| WALL-05 | Phase 4 | Pending |
-| WALL-06 | Phase 4 | Pending |
+| WALL-01 | Phase 4 | Complete |
+| WALL-02 | Phase 4 | Complete |
+| WALL-03 | Phase 4 | Complete |
+| WALL-04 | Phase 4 | Complete |
+| WALL-05 | Phase 4 | Complete |
+| WALL-06 | Phase 4 | Complete |
 | REM-01 | Phase 5 | Pending |
 | REM-02 | Phase 5 | Pending |
 | REM-03 | Phase 5 | Pending |
@@ -144,10 +144,10 @@
 | PRO-03 | Phase 6 | Pending |
 | PRO-04 | Phase 6 | Pending |
 | PRO-05 | Phase 6 | Pending |
-| CLEAN-01 | Phase 4 | Pending |
-| CLEAN-02 | Phase 4 | Pending |
-| CLEAN-03 | Phase 4 | Pending |
-| CLEAN-04 | Phase 4 | Pending |
+| CLEAN-01 | Phase 4 | Complete |
+| CLEAN-02 | Phase 4 | Complete |
+| CLEAN-03 | Phase 4 | Complete |
+| CLEAN-04 | Phase 4 | Complete |
 | QUAL-01 | Phase 7 | Pending |
 | QUAL-02 | Phase 7 | Pending |
 | QUAL-03 | Phase 7 | Pending |
@@ -163,4 +163,4 @@
 
 ---
 *Requirements defined: 2026-05-21*
-*Last updated: 2026-05-21 after initialization*
+*Last updated: 2026-06-05 after Phase 4 MVP Light completion*

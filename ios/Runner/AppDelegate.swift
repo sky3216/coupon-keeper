@@ -71,6 +71,28 @@ import Vision
         result(FlutterMethodNotImplemented)
       }
     }
+    let sourceCleanupChannel = FlutterMethodChannel(
+      name: "coupon_keeper/source_cleanup",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    sourceCleanupChannel.setMethodCallHandler { call, result in
+      guard call.method == "openSource" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard
+        let arguments = call.arguments as? [String: Any],
+        let originalUri = arguments["originalUri"] as? String,
+        let url = URL(string: originalUri),
+        UIApplication.shared.canOpenURL(url)
+      else {
+        result(false)
+        return
+      }
+      UIApplication.shared.open(url) { opened in
+        result(opened)
+      }
+    }
   }
 
   private func pickSources(sourceType: String, result: @escaping FlutterResult) {
