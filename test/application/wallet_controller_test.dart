@@ -1,9 +1,13 @@
+import 'package:coupon_keeper/application/pro_entitlement_controller.dart';
 import 'package:coupon_keeper/application/reminder_engine.dart';
 import 'package:coupon_keeper/application/wallet_controller.dart';
 import 'package:coupon_keeper/data/in_memory_pass_repository.dart';
+import 'package:coupon_keeper/data/in_memory_pro_entitlement_repository.dart';
 import 'package:coupon_keeper/domain/pass.dart';
 import 'package:coupon_keeper/domain/pass_confidence.dart';
 import 'package:coupon_keeper/domain/pass_source_metadata.dart';
+import 'package:coupon_keeper/domain/pro_entitlement.dart';
+import 'package:coupon_keeper/platform/pro_purchase_gateway.dart';
 import 'package:coupon_keeper/platform/reminder_scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -52,6 +56,31 @@ void main() {
       PassStatus.cleanupCandidate,
     );
   });
+
+  test(
+    'free cleanup candidate entry is blocked by contextual Pro gate',
+    () async {
+      final repository = InMemoryPassRepository();
+      final pass = _pass(id: 'pass-3', status: PassStatus.used);
+      await repository.save(pass);
+      final controller = WalletController(
+        repository: repository,
+        proEntitlementController: ProEntitlementController(
+          entitlementRepository: InMemoryProEntitlementRepository(),
+          passRepository: repository,
+          purchaseGateway: _FakeProPurchaseGateway(),
+          now: () => DateTime(2026, 6, 21),
+        ),
+        now: () => DateTime(2026, 6, 21),
+      );
+
+      await expectLater(
+        controller.markCleanupCandidate(pass),
+        throwsA(isA<ProGateException>()),
+      );
+      expect((await repository.getById('pass-3'))?.status, PassStatus.used);
+    },
+  );
 }
 
 class _RecordingReminderScheduler implements ReminderScheduler {
@@ -70,6 +99,24 @@ class _RecordingReminderScheduler implements ReminderScheduler {
 
   @override
   Future<void> cancelAll() async {}
+}
+
+class _FakeProPurchaseGateway implements ProPurchaseGateway {
+  @override
+  Future<ProPurchaseResult> purchasePro() async {
+    return const ProPurchaseResult(
+      isPro: true,
+      source: ProEntitlementSource.purchase,
+    );
+  }
+
+  @override
+  Future<ProPurchaseResult> restorePro() async {
+    return const ProPurchaseResult(
+      isPro: true,
+      source: ProEntitlementSource.restore,
+    );
+  }
 }
 
 Pass _pass({required String id, PassStatus status = PassStatus.active}) {

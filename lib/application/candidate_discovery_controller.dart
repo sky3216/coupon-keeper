@@ -10,6 +10,7 @@ import '../domain/scan_item.dart';
 import '../platform/image_copy_store.dart';
 import '../platform/ocr_text_recognizer.dart';
 import 'pass_candidate_parser.dart';
+import 'pro_entitlement_controller.dart';
 import 'reminder_engine.dart';
 
 enum CandidateDiscoveryStatus {
@@ -30,6 +31,7 @@ class CandidateDiscoveryController {
     required this.now,
     required this.nextId,
     this.reminderEngine,
+    this.proEntitlementController,
   });
 
   final OcrTextRecognizer recognizer;
@@ -39,6 +41,7 @@ class CandidateDiscoveryController {
   final DateTime Function() now;
   final String Function() nextId;
   final ReminderEngine? reminderEngine;
+  final ProEntitlementController? proEntitlementController;
 
   final List<PassCandidate> _candidates = [];
   final List<ScanItem> _processedItems = [];
@@ -214,6 +217,7 @@ class CandidateDiscoveryController {
     if (sourceRef == null || sourceRef.isEmpty) {
       throw StateError('Selected image source is no longer available.');
     }
+    await proEntitlementController?.ensureCanSaveActivePass();
     final id = nextId();
     final timestamp = now();
     final imageCopy = await imageCopyStore.copyIntoAppStorage(

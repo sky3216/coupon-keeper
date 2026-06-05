@@ -1,5 +1,6 @@
 import '../data/pass_repository.dart';
 import '../domain/pass.dart';
+import 'pro_entitlement_controller.dart';
 import 'reminder_engine.dart';
 
 enum WalletFilter { active, used, expired, cleanup }
@@ -39,11 +40,13 @@ class WalletController {
   WalletController({
     required this.repository,
     this.reminderEngine,
+    this.proEntitlementController,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
   final PassRepository repository;
   final ReminderEngine? reminderEngine;
+  final ProEntitlementController? proEntitlementController;
   final DateTime Function() _now;
 
   WalletState _state = const WalletState();
@@ -74,6 +77,7 @@ class WalletController {
   }
 
   Future<WalletState> markCleanupCandidate(Pass pass) async {
+    await proEntitlementController?.ensureCleanupCandidateAllowed();
     final updated = pass.copyWith(
       status: PassStatus.cleanupCandidate,
       updatedAt: _now(),

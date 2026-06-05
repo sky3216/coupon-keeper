@@ -130,6 +130,7 @@ Cross-cutting constraints:
 
 **Goal:** Add one-time Pro purchase, restore, local entitlement cache, and contextual gates.
 **Mode:** mvp
+**Status:** Entitlement core complete as of 2026-06-06; store purchase/restore integration remains.
 
 **Requirements:** PRO-01, PRO-02, PRO-03, PRO-04, PRO-05
 

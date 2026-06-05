@@ -7,7 +7,7 @@ class CouponKeeperDatabase {
     Future<String> Function()? databasePath,
   }) : _databasePath = databasePath ?? _defaultDatabasePath;
 
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   final DatabaseFactory? databaseFactory;
   final Future<String> Function() _databasePath;
@@ -26,12 +26,14 @@ class CouponKeeperDatabase {
             path,
             version: schemaVersion,
             onCreate: _createSchema,
+            onUpgrade: _upgradeSchema,
           )
         : await factory.openDatabase(
             path,
             options: OpenDatabaseOptions(
               version: schemaVersion,
               onCreate: _createSchema,
+              onUpgrade: _upgradeSchema,
             ),
           );
     _database = opened;
@@ -87,6 +89,28 @@ CREATE TABLE image_copies (
   fingerprint TEXT PRIMARY KEY,
   path TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL
+)
+''');
+    await _createProEntitlementSchema(db);
+  }
+
+  static Future<void> _upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    if (oldVersion < 2) {
+      await _createProEntitlementSchema(db);
+    }
+  }
+
+  static Future<void> _createProEntitlementSchema(Database db) async {
+    await db.execute('''
+CREATE TABLE IF NOT EXISTS pro_entitlement (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  is_pro INTEGER NOT NULL,
+  source TEXT NOT NULL,
+  updated_at TEXT NOT NULL
 )
 ''');
   }

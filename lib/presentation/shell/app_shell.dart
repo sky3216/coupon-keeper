@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../application/coupon_keeper_dependencies.dart';
 import '../../application/guided_scan_controller.dart';
 import '../../application/candidate_discovery_controller.dart';
+import '../../application/pro_entitlement_controller.dart';
 import '../../application/reminder_engine.dart';
 import '../../data/pass_repository.dart';
 import '../screens/scan_screen.dart';
@@ -16,6 +17,7 @@ class AppShell extends StatefulWidget {
     this.discoveryController,
     this.passRepository,
     this.reminderEngine,
+    this.proEntitlementController,
     super.key,
   });
 
@@ -24,6 +26,7 @@ class AppShell extends StatefulWidget {
   final CandidateDiscoveryController? discoveryController;
   final PassRepository? passRepository;
   final ReminderEngine? reminderEngine;
+  final ProEntitlementController? proEntitlementController;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -45,6 +48,9 @@ class _AppShellState extends State<AppShell> {
         widget.discoveryController?.passRepository;
     final reminderEngine =
         dependencies?.reminderEngine ?? widget.reminderEngine;
+    final proEntitlementController =
+        dependencies?.proEntitlementController ??
+        widget.proEntitlementController;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -56,6 +62,7 @@ class _AppShellState extends State<AppShell> {
               onScanSelected: _selectScan,
               passRepository: passRepository,
               reminderEngine: reminderEngine,
+              proEntitlementController: proEntitlementController,
               isSelected: _selectedIndex == 1,
             ),
             ScanScreen(

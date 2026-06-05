@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../application/wallet_controller.dart';
+import '../../application/pro_entitlement_controller.dart';
 import '../../application/reminder_engine.dart';
 import '../../data/pass_repository.dart';
 import '../../domain/pass.dart';
@@ -18,6 +19,7 @@ class WalletScreen extends StatefulWidget {
     required this.onScanSelected,
     this.passRepository,
     this.reminderEngine,
+    this.proEntitlementController,
     this.sourceCleanupLauncher,
     this.isSelected = false,
     super.key,
@@ -26,6 +28,7 @@ class WalletScreen extends StatefulWidget {
   final VoidCallback onScanSelected;
   final PassRepository? passRepository;
   final ReminderEngine? reminderEngine;
+  final ProEntitlementController? proEntitlementController;
   final SourceCleanupLauncher? sourceCleanupLauncher;
   final bool isSelected;
 
@@ -51,7 +54,8 @@ class _WalletScreenState extends State<WalletScreen> {
   void didUpdateWidget(covariant WalletScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.passRepository != widget.passRepository ||
-        oldWidget.reminderEngine != widget.reminderEngine) {
+        oldWidget.reminderEngine != widget.reminderEngine ||
+        oldWidget.proEntitlementController != widget.proEntitlementController) {
       _attachController();
       _load();
     } else if (!oldWidget.isSelected && widget.isSelected) {
@@ -142,6 +146,7 @@ class _WalletScreenState extends State<WalletScreen> {
         : WalletController(
             repository: repository,
             reminderEngine: widget.reminderEngine,
+            proEntitlementController: widget.proEntitlementController,
           );
   }
 
@@ -179,7 +184,17 @@ class _WalletScreenState extends State<WalletScreen> {
             }
           },
           onMarkCleanupCandidate: () async {
-            final nextState = await controller.markCleanupCandidate(pass);
+            final WalletState nextState;
+            try {
+              nextState = await controller.markCleanupCandidate(pass);
+            } on ProGateException catch (error) {
+              if (mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(error.message)));
+              }
+              return;
+            }
             if (mounted) {
               setState(() {
                 _state = nextState;
