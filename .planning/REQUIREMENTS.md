@@ -46,10 +46,10 @@
 
 ### Reminders
 
-- [ ] **REM-01**: Free user receives D-7 and D-Day local notifications for active passes with expiry dates.
-- [ ] **REM-02**: Pro user can receive D-7, D-3, D-1, D-Day, and custom reminders.
-- [ ] **REM-03**: App schedules reminders when passes are saved or updated.
-- [ ] **REM-04**: App reconciles stale, missing, used, or expired reminders on launch/resume.
+- [x] **REM-01**: Free user receives D-7 and D-Day local notifications for active passes with expiry dates.
+- [x] **REM-02**: Pro user can receive D-7, D-3, D-1, D-Day, and custom reminders.
+- [x] **REM-03**: App schedules reminders when passes are saved or updated.
+- [x] **REM-04**: App reconciles stale, missing, used, or expired reminders on launch/resume.
 
 ### Pro and Billing
 
@@ -135,10 +135,10 @@
 | WALL-04 | Phase 4 | Complete |
 | WALL-05 | Phase 4 | Complete |
 | WALL-06 | Phase 4 | Complete |
-| REM-01 | Phase 5 | Pending |
-| REM-02 | Phase 5 | Pending |
-| REM-03 | Phase 5 | Pending |
-| REM-04 | Phase 5 | Pending |
+| REM-01 | Phase 5 | Complete |
+| REM-02 | Phase 5 | Complete |
+| REM-03 | Phase 5 | Complete |
+| REM-04 | Phase 5 | Complete |
 | PRO-01 | Phase 6 | Pending |
 | PRO-02 | Phase 6 | Pending |
 | PRO-03 | Phase 6 | Pending |
@@ -163,4 +163,4 @@
 
 ---
 *Requirements defined: 2026-05-21*
-*Last updated: 2026-06-05 after Phase 4 MVP Light completion*
+*Last updated: 2026-06-05 after Phase 5 MVP Light completion*

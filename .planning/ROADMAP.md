@@ -115,6 +115,7 @@ Cross-cutting constraints:
 
 **Goal:** Schedule useful expiry reminders locally and keep them correct as passes change.
 **Mode:** mvp
+**Status:** MVP Light complete as of 2026-06-05.
 
 **Requirements:** REM-01, REM-02, REM-03, REM-04
 

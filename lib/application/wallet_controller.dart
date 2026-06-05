@@ -1,5 +1,6 @@
 import '../data/pass_repository.dart';
 import '../domain/pass.dart';
+import 'reminder_engine.dart';
 
 enum WalletFilter { active, used, expired, cleanup }
 
@@ -35,10 +36,14 @@ class WalletState {
 }
 
 class WalletController {
-  WalletController({required this.repository, DateTime Function()? now})
-    : _now = now ?? DateTime.now;
+  WalletController({
+    required this.repository,
+    this.reminderEngine,
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
 
   final PassRepository repository;
+  final ReminderEngine? reminderEngine;
   final DateTime Function() _now;
 
   WalletState _state = const WalletState();
@@ -62,16 +67,31 @@ class WalletController {
   }
 
   Future<WalletState> markUsed(Pass pass) async {
-    await repository.update(
-      pass.copyWith(status: PassStatus.used, updatedAt: _now()),
-    );
+    final updated = pass.copyWith(status: PassStatus.used, updatedAt: _now());
+    await repository.update(updated);
+    await _cancelReminders(updated);
     return load();
   }
 
   Future<WalletState> markCleanupCandidate(Pass pass) async {
-    await repository.update(
-      pass.copyWith(status: PassStatus.cleanupCandidate, updatedAt: _now()),
+    final updated = pass.copyWith(
+      status: PassStatus.cleanupCandidate,
+      updatedAt: _now(),
     );
+    await repository.update(updated);
+    await _cancelReminders(updated);
     return load();
+  }
+
+  Future<void> _cancelReminders(Pass pass) async {
+    final engine = reminderEngine;
+    if (engine == null) {
+      return;
+    }
+    try {
+      await engine.cancelForPass(pass);
+    } catch (_) {
+      // Wallet state changes should stay usable if local notification cleanup fails.
+    }
   }
 }

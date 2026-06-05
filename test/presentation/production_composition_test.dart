@@ -8,6 +8,7 @@ import 'package:coupon_keeper/data/sqlite_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
 import 'package:coupon_keeper/platform/local_image_copy_store.dart';
 import 'package:coupon_keeper/platform/method_channel_ocr_text_recognizer.dart';
+import 'package:coupon_keeper/platform/method_channel_reminder_scheduler.dart';
 import 'package:coupon_keeper/platform/method_channel_scan_source_picker.dart';
 import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +29,10 @@ void main() {
     expect(dependencies.passRepository, isA<SqlitePassRepository>());
     expect(dependencies.fingerprintCache, isA<SqliteScanFingerprintCache>());
     expect(dependencies.imageCopyStore, isA<LocalImageCopyStore>());
+    expect(
+      dependencies.reminderScheduler,
+      isA<MethodChannelReminderScheduler>(),
+    );
   });
 
   test('widget tests can still inject deterministic fake controllers', () {

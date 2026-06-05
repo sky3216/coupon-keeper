@@ -4,6 +4,7 @@ import CryptoKit
 import PhotosUI
 import UIKit
 import UniformTypeIdentifiers
+import UserNotifications
 import Vision
 
 @main
@@ -91,6 +92,85 @@ import Vision
       }
       UIApplication.shared.open(url) { opened in
         result(opened)
+      }
+    }
+    let remindersChannel = FlutterMethodChannel(
+      name: "coupon_keeper/reminders",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    remindersChannel.setMethodCallHandler { [weak self] call, result in
+      switch call.method {
+      case "requestAuthorization":
+        self?.requestReminderAuthorization(result: result)
+      case "schedule":
+        self?.scheduleReminder(arguments: call.arguments, result: result)
+      case "cancelForPass":
+        guard
+          let arguments = call.arguments as? [String: Any],
+          let passId = arguments["passId"] as? String
+        else {
+          result(nil)
+          return
+        }
+        self?.cancelRemindersForPass(passId: passId, result: result)
+      case "cancelAll":
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func requestReminderAuthorization(result: @escaping FlutterResult) {
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+      DispatchQueue.main.async {
+        result(granted)
+      }
+    }
+  }
+
+  private func scheduleReminder(arguments: Any?, result: @escaping FlutterResult) {
+    guard
+      let payload = arguments as? [String: Any],
+      let id = payload["id"] as? String,
+      let passId = payload["passId"] as? String,
+      let title = payload["title"] as? String,
+      let body = payload["body"] as? String,
+      let triggerAtMillis = payload["triggerAtMillis"] as? NSNumber
+    else {
+      result(FlutterError(code: "invalid-reminder", message: "A reminder id, pass id, title, body, and trigger time are required.", details: nil))
+      return
+    }
+
+    let triggerDate = Date(timeIntervalSince1970: triggerAtMillis.doubleValue / 1000)
+    let interval = max(1, triggerDate.timeIntervalSinceNow)
+    let content = UNMutableNotificationContent()
+    content.title = title
+    content.body = body
+    content.sound = .default
+    content.userInfo = ["passId": passId]
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
+    let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+    UNUserNotificationCenter.current().add(request) { error in
+      DispatchQueue.main.async {
+        if let error {
+          result(FlutterError(code: "schedule-reminder-failed", message: error.localizedDescription, details: nil))
+        } else {
+          result(nil)
+        }
+      }
+    }
+  }
+
+  private func cancelRemindersForPass(passId: String, result: @escaping FlutterResult) {
+    UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+      let ids = requests
+        .map(\.identifier)
+        .filter { $0.hasPrefix("\(passId):") }
+      UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+      DispatchQueue.main.async {
+        result(nil)
       }
     }
   }
