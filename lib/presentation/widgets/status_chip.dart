@@ -7,6 +7,7 @@ enum StatusChipKind {
   todayExpiry,
   expired,
   used,
+  cleanupCandidate,
   needsReview,
   sourceMissing,
 }
@@ -101,6 +102,14 @@ _ChipSpec _specFor(StatusChipKind kind) {
         foreground: AppTheme.textSecondary,
         background: AppTheme.neutralChip,
         border: AppTheme.neutralChip,
+      );
+    case StatusChipKind.cleanupCandidate:
+      return const _ChipSpec(
+        label: '정리 후보',
+        semanticLabel: '정리 후보',
+        foreground: AppTheme.textSecondary,
+        background: AppTheme.neutralChip,
+        border: AppTheme.border,
       );
     case StatusChipKind.needsReview:
       return const _ChipSpec(

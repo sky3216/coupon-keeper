@@ -12,6 +12,7 @@ void main() {
             StatusChip(kind: StatusChipKind.todayExpiry),
             StatusChip(kind: StatusChipKind.expired),
             StatusChip(kind: StatusChipKind.used),
+            StatusChip(kind: StatusChipKind.cleanupCandidate),
             StatusChip(kind: StatusChipKind.needsReview),
             StatusChip(kind: StatusChipKind.sourceMissing),
           ],
@@ -23,6 +24,7 @@ void main() {
     expect(find.text('오늘 만료'), findsOneWidget);
     expect(find.text('만료됨'), findsOneWidget);
     expect(find.text('사용 완료'), findsOneWidget);
+    expect(find.text('정리 후보'), findsOneWidget);
     expect(find.text('확인 필요'), findsOneWidget);
     expect(find.text('원본 없음'), findsOneWidget);
   });
@@ -64,6 +66,7 @@ void main() {
             StatusChip(kind: StatusChipKind.todayExpiry),
             StatusChip(kind: StatusChipKind.expired),
             StatusChip(kind: StatusChipKind.used),
+            StatusChip(kind: StatusChipKind.cleanupCandidate),
             StatusChip(kind: StatusChipKind.needsReview),
             StatusChip(kind: StatusChipKind.sourceMissing),
           ],

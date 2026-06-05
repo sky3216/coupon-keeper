@@ -67,4 +67,11 @@ class WalletController {
     );
     return load();
   }
+
+  Future<WalletState> markCleanupCandidate(Pass pass) async {
+    await repository.update(
+      pass.copyWith(status: PassStatus.cleanupCandidate, updatedAt: _now()),
+    );
+    return load();
+  }
 }

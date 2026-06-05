@@ -164,6 +164,15 @@ class _WalletScreenState extends State<WalletScreen> {
               });
             }
           },
+          onMarkCleanupCandidate: () async {
+            final nextState = await controller.markCleanupCandidate(pass);
+            if (mounted) {
+              setState(() {
+                _state = nextState;
+                _filter = WalletFilter.cleanup;
+              });
+            }
+          },
         ),
       ),
     );
@@ -177,11 +186,13 @@ class PassDetailScreen extends StatefulWidget {
   const PassDetailScreen({
     required this.pass,
     required this.onMarkUsed,
+    required this.onMarkCleanupCandidate,
     super.key,
   });
 
   final Pass pass;
   final Future<void> Function() onMarkUsed;
+  final Future<void> Function() onMarkCleanupCandidate;
 
   @override
   State<PassDetailScreen> createState() => _PassDetailScreenState();
@@ -190,12 +201,15 @@ class PassDetailScreen extends StatefulWidget {
 class _PassDetailScreenState extends State<PassDetailScreen> {
   var _isSaving = false;
   var _isUsed = false;
+  var _isCleanupCandidate = false;
 
   @override
   Widget build(BuildContext context) {
     final pass = widget.pass;
     final sourceMissing = !pass.sourceMetadata.isAvailable;
     final isUsed = _isUsed || pass.status == PassStatus.used;
+    final isCleanupCandidate =
+        _isCleanupCandidate || pass.status == PassStatus.cleanupCandidate;
 
     return Scaffold(
       appBar: AppBar(title: const Text('쿠폰 상세')),
@@ -217,6 +231,7 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
               sourceMissing: sourceMissing,
               imageCopyPath: pass.imageCopyPath,
               title: pass.title,
+              onExpand: () => _openImage(pass),
             ),
             const SizedBox(height: 20),
             Text(pass.title, style: Theme.of(context).textTheme.headlineMedium),
@@ -238,19 +253,31 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
               value: sourceMissing ? '원본 파일 확인 필요' : '앱 내부 사본 보관됨',
             ),
             const SizedBox(height: 20),
-            _BarcodePanel(title: pass.title),
+            _BarcodePanel(
+              title: pass.title,
+              onExpand: () => _openBarcode(pass),
+            ),
             if (sourceMissing) ...[
               const SizedBox(height: 16),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: StatusChip(kind: StatusChipKind.sourceMissing),
+              const Row(
+                children: [StatusChip(kind: StatusChipKind.sourceMissing)],
               ),
             ],
             if (isUsed) ...[
               const SizedBox(height: 16),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: StatusChip(kind: StatusChipKind.used),
+              const Row(children: [StatusChip(kind: StatusChipKind.used)]),
+              if (!isCleanupCandidate) ...[
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: _isSaving ? null : _markCleanupCandidate,
+                  child: const Text('정리 후보로 표시'),
+                ),
+              ],
+            ],
+            if (isCleanupCandidate) ...[
+              const SizedBox(height: 16),
+              const Row(
+                children: [StatusChip(kind: StatusChipKind.cleanupCandidate)],
               ),
             ],
           ],
@@ -268,6 +295,35 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
         _isUsed = true;
       });
     }
+  }
+
+  Future<void> _markCleanupCandidate() async {
+    setState(() => _isSaving = true);
+    await widget.onMarkCleanupCandidate();
+    if (mounted) {
+      setState(() {
+        _isSaving = false;
+        _isCleanupCandidate = true;
+      });
+    }
+  }
+
+  void _openImage(Pass pass) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => _ExpandedImageScreen(
+          title: pass.title,
+          imageCopyPath: pass.imageCopyPath,
+          sourceMissing: !pass.sourceMetadata.isAvailable,
+        ),
+      ),
+    );
+  }
+
+  void _openBarcode(Pass pass) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => _ExpandedBarcodeScreen(pass: pass)),
+    );
   }
 }
 
@@ -379,36 +435,54 @@ class _ImagePanel extends StatelessWidget {
     required this.sourceMissing,
     required this.imageCopyPath,
     required this.title,
+    required this.onExpand,
+    this.showExpandButton = true,
   });
 
   final bool sourceMissing;
   final String? imageCopyPath;
   final String title;
+  final VoidCallback onExpand;
+  final bool showExpandButton;
 
   @override
   Widget build(BuildContext context) {
     final image = _imageFile();
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          border: Border.all(color: AppTheme.border),
-          borderRadius: BorderRadius.circular(8),
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              border: Border.all(color: AppTheme.border),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: image == null
+                  ? _ImagePlaceholder(sourceMissing: sourceMissing)
+                  : Image.file(
+                      image,
+                      fit: BoxFit.contain,
+                      semanticLabel: '$title 쿠폰 이미지',
+                      errorBuilder: (_, _, _) =>
+                          _ImagePlaceholder(sourceMissing: sourceMissing),
+                    ),
+            ),
+          ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: image == null
-              ? _ImagePlaceholder(sourceMissing: sourceMissing)
-              : Image.file(
-                  image,
-                  fit: BoxFit.contain,
-                  semanticLabel: '$title 쿠폰 이미지',
-                  errorBuilder: (_, _, _) =>
-                      _ImagePlaceholder(sourceMissing: sourceMissing),
-                ),
-        ),
-      ),
+        if (showExpandButton)
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: IconButton.filledTonal(
+              tooltip: '쿠폰 이미지 확대',
+              onPressed: onExpand,
+              icon: const Icon(Icons.zoom_in),
+            ),
+          ),
+      ],
     );
   }
 
@@ -442,9 +516,10 @@ class _ImagePlaceholder extends StatelessWidget {
 }
 
 class _BarcodePanel extends StatelessWidget {
-  const _BarcodePanel({required this.title});
+  const _BarcodePanel({required this.title, required this.onExpand});
 
   final String title;
+  final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +534,21 @@ class _BarcodePanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('바코드', style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '바코드',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  tooltip: '바코드 확대',
+                  onPressed: onExpand,
+                  icon: const Icon(Icons.open_in_full),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Semantics(
               label: '$title 바코드 영역',
@@ -473,6 +562,100 @@ class _BarcodePanel extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandedImageScreen extends StatelessWidget {
+  const _ExpandedImageScreen({
+    required this.title,
+    required this.imageCopyPath,
+    required this.sourceMissing,
+  });
+
+  final String title;
+  final String? imageCopyPath;
+  final bool sourceMissing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.viewerBackground,
+      appBar: AppBar(
+        title: const Text('쿠폰 이미지'),
+        leading: IconButton(
+          tooltip: '닫기',
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.close),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: _ImagePanel(
+              sourceMissing: sourceMissing,
+              imageCopyPath: imageCopyPath,
+              title: title,
+              onExpand: () {},
+              showExpandButton: false,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandedBarcodeScreen extends StatelessWidget {
+  const _ExpandedBarcodeScreen({required this.pass});
+
+  final Pass pass;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.viewerBackground,
+      appBar: AppBar(
+        title: const Text('바코드 확대'),
+        leading: IconButton(
+          tooltip: '닫기',
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.close),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.qr_code_2,
+                      size: 180,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      pass.title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -514,6 +697,7 @@ StatusChipKind _statusKind(Pass pass) {
     case PassStatus.expired:
       return StatusChipKind.expired;
     case PassStatus.cleanupCandidate:
+      return StatusChipKind.cleanupCandidate;
     case PassStatus.needsReview:
       return StatusChipKind.needsReview;
     case PassStatus.active:
