@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 7
-status: phase-6-mvp-light-complete-ready-for-phase-7
-last_updated: "2026-06-06T13:10:31.000+09:00"
+status: phase-7-privacy-accessibility-complete-ios-env-blocked
+last_updated: "2026-06-06T13:21:50.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 21
-  completed_plans: 21
-  percent: 75
+  total_plans: 22
+  completed_plans: 22
+  percent: 88
 ---
 
 # State: Coupon Keeper
@@ -39,7 +39,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 | 4. Wallet, Detail, and Cleanup Flow | MVP Light Complete | Wallet list/detail/use-complete, barcode/image expansion, cleanup candidate state, source cleanup handoff, and source-missing recovery complete; `flutter analyze`, `flutter test` 98/98, Android debug APK build, install, and launch passed |
 | 5. Reminder Engine | MVP Light Complete | Free D-7/D-Day and Pro rule reminder engine complete; pass save/status changes sync reminders; app launch/resume reconciles reminders; Android/iOS MethodChannel local notification adapters added; `flutter analyze`, `flutter test` 110/110, Android debug APK build, install, and launch passed |
 | 6. Pro Entitlement and Contextual Gates | MVP Light Complete | Free active pass limit, contextual save/cleanup/custom reminder gates, official `in_app_purchase` purchase/restore gateway, Pro gate sheet, and SQLite entitlement cache implemented; `flutter analyze`, `flutter test` 123/123, Android debug APK build, install, and launch passed |
-| 7. Privacy, Accessibility, Testing, and Release Readiness | Pending | 0% |
+| 7. Privacy, Accessibility, Testing, and Release Readiness | Partial Complete, iOS Env Blocked | QUAL-01..06 complete: no login/sync/cloud, no broad network/media/location permissions, selected-source privacy documented, accessibility semantics added for detail barcode/expiry/status/actions, tests 126/126, Android debug APK and release appbundle build passed; QUAL-07 iOS build remains blocked by local Xcode/CoreSimulator `AssetCatalogSimulatorAgent` failure |
 
 ## Recent Decisions
 
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Phase 7의 MVP Light 조각으로 privacy/accessibility/release readiness gap을 점검하고, Android 내부 테스트 빌드 준비와 iOS 환경 blocker 문서화를 마무리한다. 실제 App Store/Google Play IAP 상품 등록과 tester account 검증은 출시 설정 단계에서 처리한다.
+Phase 7의 남은 blocker는 로컬 Xcode/CoreSimulator 환경이다. Xcode 업데이트 또는 재설치 후 `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`를 재시도한다. Android 내부 테스트용 appbundle은 이미 빌드 가능하다.
 
 ## Decisions
 
@@ -107,6 +107,7 @@ Phase 7의 MVP Light 조각으로 privacy/accessibility/release readiness gap을
 - [Phase 5]: Reminder Engine MVP Light completed — ReminderEngine schedules free D-7/D-Day and Pro D-7/D-3/D-1/D-Day/custom rules, saved passes sync reminders, used/cleanup candidates cancel reminders, app launch/resume reconciles reminders, and Android/iOS native adapters schedule local notifications; `flutter analyze`, `flutter test` 110/110, Android debug APK build, install, and launch passed.
 - [Phase 6]: Entitlement core and contextual gates completed — Free active pass limit, contextual save/cleanup/custom reminder gates, purchase/restore platform interface, and SQLite entitlement cache are implemented; PRO-03/04 real store purchase/restore integration remains; `flutter analyze`, `flutter test` 118/118, Android debug APK build, install, and launch passed.
 - [Phase 6]: Store purchase/restore integration completed — Production composition now uses the official Flutter `in_app_purchase` package, Pro gates show purchase/restore actions in value moments, successful purchase/restore caches Pro entitlement locally, and restore-without-purchase falls back cleanly; `flutter analyze`, `flutter test` 123/123, Android debug APK build, install, and launch passed.
+- [Phase 7]: Privacy/accessibility/release readiness slice completed — Added release readiness documentation, manifest privacy tests, and detail screen semantics for expiry, value, source status, barcode, image, and primary actions; `flutter analyze`, `flutter test` 126/126, Android debug APK build/install/launch, and Android release appbundle build passed. iOS no-codesign release build remains blocked by local Xcode 16.1/CoreSimulator on macOS 26.5 failing to launch `AssetCatalogSimulatorAgent`.
 
 ## Accumulated Context
 
