@@ -5,9 +5,9 @@ import '../data/sqlite_image_copy_registry.dart';
 import '../data/sqlite_pass_repository.dart';
 import '../data/sqlite_pro_entitlement_repository.dart';
 import '../data/sqlite_scan_fingerprint_cache.dart';
+import '../platform/iap_pro_purchase_gateway.dart';
 import '../platform/local_image_copy_store.dart';
 import '../platform/method_channel_ocr_text_recognizer.dart';
-import '../platform/method_channel_pro_purchase_gateway.dart';
 import '../platform/method_channel_reminder_scheduler.dart';
 import '../platform/method_channel_scan_source_picker.dart';
 import 'candidate_discovery_controller.dart';
@@ -43,7 +43,7 @@ class CouponKeeperDependencies {
   final LocalImageCopyStore imageCopyStore;
   final MethodChannelScanSourcePicker scanPicker;
   final MethodChannelOcrTextRecognizer ocrTextRecognizer;
-  final MethodChannelProPurchaseGateway proPurchaseGateway;
+  final IapProPurchaseGateway proPurchaseGateway;
   final ProEntitlementController proEntitlementController;
   final MethodChannelReminderScheduler reminderScheduler;
   final ReminderEngine reminderEngine;
@@ -63,7 +63,7 @@ class CouponKeeperDependencies {
     final imageCopyStore = LocalImageCopyStore(registry: imageCopyRegistry);
     final scanPicker = MethodChannelScanSourcePicker();
     final ocrTextRecognizer = MethodChannelOcrTextRecognizer();
-    final proPurchaseGateway = MethodChannelProPurchaseGateway();
+    final proPurchaseGateway = IapProPurchaseGateway();
     final reminderScheduler = MethodChannelReminderScheduler();
     const parser = PassCandidateParser();
     const uuid = Uuid();

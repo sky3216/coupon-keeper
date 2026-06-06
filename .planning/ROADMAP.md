@@ -130,16 +130,17 @@ Cross-cutting constraints:
 
 **Goal:** Add one-time Pro purchase, restore, local entitlement cache, and contextual gates.
 **Mode:** mvp
-**Status:** Entitlement core complete as of 2026-06-06; store purchase/restore integration remains.
+**Status:** MVP Light complete as of 2026-06-06.
 
 **Requirements:** PRO-01, PRO-02, PRO-03, PRO-04, PRO-05
 
 **Success Criteria:**
 1. Free user is blocked from saving a 6th active pass with a contextual Pro gate.
 2. Pro gate appears for custom reminders, unlimited save affordance, and cleanup candidate entry.
-3. In-app purchase and restore flows are wired through platform/store interfaces.
+3. In-app purchase and restore flows are wired through the official Flutter in-app purchase plugin.
 4. Local entitlement cache unlocks Pro features and keeps free features usable when store checks fail.
 5. Widget/integration tests cover purchase success, restore failure, and free fallback.
+6. App Store/Google Play product IDs and tester accounts are documented as release-readiness configuration, not app-code blockers.
 
 ### Phase 7: Privacy, Accessibility, Testing, and Release Readiness
 
