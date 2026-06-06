@@ -81,3 +81,26 @@ code signature validation failed fatally
 2. `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`가 새 Xcode를 가리키는지 확인한다.
 3. `xcodebuild -runFirstLaunch`를 다시 실행한다.
 4. iOS no-codesign release build를 재시도한다.
+
+확인한 업데이트 경로:
+
+```bash
+mas outdated
+```
+
+위 명령은 App Store의 Xcode 업데이트를 `16.1 -> 26.5`로 표시한다.
+
+```bash
+mas upgrade 497799835
+```
+
+위 명령은 Xcode 업데이트를 시작할 수 있지만 현재 자동 실행에서는 관리자 비밀번호 입력이 필요한 `sudo` 단계에서 멈춘다.
+
+```text
+sudo: a terminal is required to read the password
+sudo: a password is required
+```
+
+`xcodes install 26.5`도 확인했지만 Apple ID/비밀번호가 필요해 자동 설치가 진행되지 않는다.
+
+따라서 남은 조치는 로컬 사용자 인증이 필요한 App Store Xcode 업데이트다.

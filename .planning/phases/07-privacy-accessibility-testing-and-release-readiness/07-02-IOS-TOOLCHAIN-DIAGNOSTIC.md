@@ -82,3 +82,38 @@ Apple Xcode 지원 매트릭스 기준으로 현재 macOS 26.x에는 Xcode 26.x 
 ```bash
 flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro
 ```
+
+## 업데이트 경로 확인
+
+`mas` CLI를 설치해 App Store 업데이트 상태를 확인했다.
+
+```bash
+mas outdated
+```
+
+결과:
+
+```text
+497799835  Xcode  (16.1 -> 26.5)
+```
+
+업데이트 시도:
+
+```bash
+mas upgrade 497799835
+```
+
+결과:
+
+```text
+sudo: a terminal is required to read the password
+sudo: a password is required
+```
+
+`xcodes install 26.5`도 시도했지만 Apple ID/비밀번호가 없어 설치가 시작되지 않았다.
+
+```text
+Apple ID: Missing username or a password. Please try again.
+```
+
+결론: Xcode 26.5 업데이트 경로는 확인됐지만, 로컬 사용자 인증이 필요해 Codex 단독으로 완료할 수 없다.
