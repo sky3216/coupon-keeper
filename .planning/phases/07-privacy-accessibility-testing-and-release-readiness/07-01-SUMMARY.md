@@ -28,5 +28,7 @@ workflow: mvp-light
 - `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`는 실패했다.
 - 실패 원인: Xcode/CoreSimulator가 `AssetCatalogSimulatorAgent`를 실행하지 못한다.
 - 환경: macOS 26.5, Xcode 16.1.
-- CoreSimulator service restart 후 재시도해도 같은 오류가 재현됐다.
-- 다음 조치: Xcode 업데이트 또는 재설치 후 iOS no-codesign release build를 재시도한다.
+- CoreSimulator service restart와 `xcodebuild -runFirstLaunch` 후에도 같은 오류가 재현됐다.
+- 직접 `xcrun simctl spawn`으로 `AssetCatalogSimulatorAgent`를 실행해도 `com.apple.CoreSimulator.LaunchdSimError Code=153`가 재현된다.
+- 시스템 로그에서 `dynamic: com.apple.dt.AssetCatalogSimulatorAgent disallowed without library validation`와 `code signature validation failed fatally`가 확인됐다.
+- Apple Xcode 지원 매트릭스 기준으로 macOS 26.x에는 Xcode 26.x 계열이 필요하다. 다음 조치는 Xcode를 macOS 26.5와 호환되는 버전으로 업데이트한 뒤 iOS no-codesign release build를 재시도하는 것이다.

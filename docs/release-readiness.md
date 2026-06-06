@@ -31,4 +31,53 @@ flutter build ipa --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUC
 - Google Play 내부 테스트 전 `COUPON_KEEPER_PRO_PRODUCT_ID`를 Play Console의 non-consumable 상품 ID와 맞춘다.
 - App Store Connect 내부 테스트 전 같은 dart-define을 App Store Connect의 product ID와 맞춘다.
 - 실제 구매/복원 승인은 각 스토어의 sandbox tester 또는 내부 tester 계정으로 확인한다.
-- 현재 로컬 Mac의 iOS 실행 검증은 Xcode/CoreSimulator 환경 이슈가 해결된 뒤 재시도한다.
+- 현재 로컬 Mac의 iOS 실행 검증은 아래 Xcode/CoreSimulator blocker가 해결된 뒤 재시도한다.
+
+## iOS 빌드 환경 blocker
+
+현재 환경:
+
+- macOS Tahoe 26.5
+- Xcode 16.1 (16B40)
+- Flutter 3.44.0
+
+재현 명령:
+
+```bash
+flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro
+```
+
+실패 증상:
+
+```text
+Error (Xcode): Failed to launch AssetCatalogSimulatorAgent via CoreSimulator spawn
+```
+
+추가 진단:
+
+```bash
+xcodebuild -runFirstLaunch
+xcrun simctl spawn <booted-device-udid> /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Xcode/Overlays/AssetCatalogSimulatorAgent
+```
+
+- `xcodebuild -runFirstLaunch`는 성공했지만 iOS build 실패는 그대로 재현된다.
+- 직접 spawn도 `com.apple.CoreSimulator.LaunchdSimError Code=153`로 실패한다.
+- 시스템 로그의 핵심 원인은 AMFI library validation 거부다.
+
+```text
+dynamic: com.apple.dt.AssetCatalogSimulatorAgent disallowed without library validation
+code signature validation failed fatally
+```
+
+판단:
+
+- 앱 코드, Flutter doctor, Android toolchain 문제는 아니다.
+- Apple Xcode 지원 매트릭스 기준으로 macOS 26.x에는 Xcode 26.x 계열이 필요하다. 현재 Xcode 16.1은 macOS 14.5~15.x 세대 도구라 macOS 26.5의 AMFI 정책과 맞지 않는 것으로 판단한다.
+- 근거: Apple Developer의 [Xcode support matrix](https://developer.apple.com/support/xcode/)와 [Xcode 16.1 release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-16_1-release-notes).
+
+다음 조치:
+
+1. Xcode를 현재 macOS 26.5와 호환되는 Xcode 26.x 계열로 업데이트한다.
+2. `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`가 새 Xcode를 가리키는지 확인한다.
+3. `xcodebuild -runFirstLaunch`를 다시 실행한다.
+4. iOS no-codesign release build를 재시도한다.

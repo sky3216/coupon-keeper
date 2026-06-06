@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 7
-status: phase-7-privacy-accessibility-complete-ios-env-blocked
-last_updated: "2026-06-06T13:21:50.000+09:00"
+status: phase-7-ios-toolchain-diagnosed-xcode-update-required
+last_updated: "2026-06-06T13:39:30.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 6
@@ -54,7 +54,7 @@ See: `.planning/PROJECT.md` (updated 2026-05-21)
 ## Environment Notes
 
 - Android toolchain blocker was remediated: cmdline-tools installed, SDK licenses accepted, Android SDK 36/build tools available, Flutter/sdkmanager PATH added to `/Users/sora/.zshrc`, the full Pixel_8_API_33 AVD data partition was wiped, and Coupon Keeper passed visual UAT on `emulator-5554`.
-- iOS simulator launch remains blocked outside app code on macOS 26.5 with Xcode 16.1: Xcode/CoreSimulator fails to spawn `AssetCatalogSimulatorAgent`, and system logs show AMFI library validation/code signature rejection for the Xcode tool binary.
+- iOS simulator/release build remains blocked outside app code on macOS 26.5 with Xcode 16.1: Xcode/CoreSimulator fails to spawn `AssetCatalogSimulatorAgent`; direct `xcrun simctl spawn` reproduces `LaunchdSimError Code=153`; system logs show `dynamic: com.apple.dt.AssetCatalogSimulatorAgent disallowed without library validation`. Apple Xcode support guidance indicates Xcode 26.x is required for macOS 26.x.
 
 ## MVP Light Workflow
 
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Phase 7의 남은 blocker는 로컬 Xcode/CoreSimulator 환경이다. Xcode 업데이트 또는 재설치 후 `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`를 재시도한다. Android 내부 테스트용 appbundle은 이미 빌드 가능하다.
+Phase 7의 남은 blocker는 로컬 Xcode/CoreSimulator 환경이다. Xcode 26.x 계열로 업데이트한 뒤 `xcodebuild -runFirstLaunch`를 실행하고 `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`를 재시도한다. Android 내부 테스트용 appbundle은 이미 빌드 가능하다.
 
 ## Decisions
 
