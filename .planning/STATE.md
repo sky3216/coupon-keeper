@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 7
-status: phase-7-mvp-light-complete
-last_updated: "2026-06-07T22:11:27.000+09:00"
+status: milestone-v1-audited
+last_updated: "2026-06-07T22:17:09.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -26,7 +26,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-21)
 
 **Core value:** 사용자가 잊고 있던 현금성 쿠폰 이미지를 찾아 만료 전에 쓰게 만든다.
-**Current focus:** v1.0 MVP implementation and release-readiness phases are complete. Next step is milestone audit/ship workflow or store configuration outside app code.
+**Current focus:** v1.0 MVP app-code milestone audit passed. Next step is ship workflow or milestone completion, while store console setup remains outside app code.
 
 ## Phase Status
 
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Run `$gsd-audit-milestone` for v1.0, then use the ship workflow if the milestone audit passes. Store console setup remains external: configure `COUPON_KEEPER_PRO_PRODUCT_ID`, tester accounts, signing, and distribution profiles.
+Run `$gsd-ship` to prepare the app-code branch for review/distribution, or `$gsd-complete-milestone v1.0` to archive and tag the completed milestone first. Store console setup remains external: configure `COUPON_KEEPER_PRO_PRODUCT_ID`, tester accounts, signing, and distribution profiles.
 
 ## Decisions
 
@@ -109,6 +109,7 @@ Run `$gsd-audit-milestone` for v1.0, then use the ship workflow if the milestone
 - [Phase 6]: Store purchase/restore integration completed — Production composition now uses the official Flutter `in_app_purchase` package, Pro gates show purchase/restore actions in value moments, successful purchase/restore caches Pro entitlement locally, and restore-without-purchase falls back cleanly; `flutter analyze`, `flutter test` 123/123, Android debug APK build, install, and launch passed.
 - [Phase 7]: Privacy/accessibility/release readiness slice completed — Added release readiness documentation, manifest privacy tests, and detail screen semantics for expiry, value, source status, barcode, image, and primary actions; `flutter analyze`, `flutter test` 126/126, Android debug APK build/install/launch, Android release appbundle build, and iOS no-codesign release build passed after Xcode 26.5/iOS 26.5 platform setup.
 - [Phase 7]: iOS release readiness blocker closed — Xcode 26.5 and iOS 26.5 platform/runtime are installed, Runner deployment target is aligned to iOS 14.0 for PHPicker/UTType usage, and `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro` passes; final verification also passed `flutter analyze`, `flutter test` 126/126, and Android release appbundle build.
+- [Milestone v1.0]: Audit passed — All 44 v1 requirements are satisfied by Phase 1~7 plus Phase 3.1 gap closure; fresh verification passed `flutter analyze`, `flutter test` 126/126, Android release appbundle build, and iOS release no-codesign build. Store console setup remains an external release operation.
 
 ## Accumulated Context
 
