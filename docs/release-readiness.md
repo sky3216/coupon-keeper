@@ -104,3 +104,23 @@ sudo: a password is required
 `xcodes install 26.5`도 확인했지만 Apple ID/비밀번호가 필요해 자동 설치가 진행되지 않는다.
 
 따라서 남은 조치는 로컬 사용자 인증이 필요한 App Store Xcode 업데이트다.
+
+추가 우회 검토:
+
+```bash
+flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro --config-only
+xcodebuild -workspace ios/Runner.xcworkspace \
+  -scheme Runner \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS=NO \
+  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
+  build
+```
+
+결과:
+
+- Swift asset symbol 생성을 꺼도 `CompileAssetCatalog` 단계가 동일하게 실패한다.
+- 따라서 blocker는 asset symbol 확장 생성이 아니라 Xcode 16.1 `actool`이 `Assets.xcassets`를 컴파일할 때 CoreSimulator helper를 실행하지 못하는 문제다.

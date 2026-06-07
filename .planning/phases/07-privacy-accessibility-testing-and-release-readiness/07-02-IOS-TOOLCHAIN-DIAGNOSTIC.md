@@ -117,3 +117,33 @@ Apple ID: Missing username or a password. Please try again.
 ```
 
 결론: Xcode 26.5 업데이트 경로는 확인됐지만, 로컬 사용자 인증이 필요해 Codex 단독으로 완료할 수 없다.
+
+## 우회 시도: asset symbol generation 비활성화
+
+다음 build setting override로 Swift asset symbol generation을 끄고 iOS device build를 직접 실행했다.
+
+```bash
+flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro --config-only
+xcodebuild -workspace ios/Runner.xcworkspace \
+  -scheme Runner \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS=NO \
+  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
+  build
+```
+
+결과:
+
+```text
+CompileAssetCatalog ... ios/Runner/Assets.xcassets
+error: Failed to launch AssetCatalogSimulatorAgent via CoreSimulator spawn
+```
+
+판단:
+
+- `GeneratedAssetSymbols.h`와 `GeneratedAssetSymbols.swift`는 제거됐지만 `actool` 자체가 실패한다.
+- 이 우회는 실패했다.
+- 원인은 project-level asset symbol 설정이 아니라 Xcode 16.1 `actool`과 macOS 26.5/CoreSimulator helper 실행 호환성이다.

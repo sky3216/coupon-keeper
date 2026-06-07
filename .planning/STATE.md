@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 7
-status: phase-7-xcode-update-path-found-user-auth-required
-last_updated: "2026-06-06T13:47:03.000+09:00"
+status: phase-7-actool-workaround-failed-xcode-update-required
+last_updated: "2026-06-07T21:19:58.000+09:00"
 progress:
   total_phases: 8
   completed_phases: 6
@@ -75,7 +75,7 @@ Coupon Keeper는 MVP 완성 속도를 높이기 위해 기본 GSD 운영을 가�
 
 ## Next Command
 
-Phase 7의 남은 blocker는 로컬 Xcode/CoreSimulator 환경이다. `mas outdated`가 Xcode `16.1 -> 26.5` 업데이트를 확인했지만 `mas upgrade 497799835`는 관리자 비밀번호가 필요해 Codex 단독으로 완료할 수 없다. 사용자가 App Store 또는 인증 가능한 터미널에서 Xcode 26.5 업데이트를 완료한 뒤 `xcodebuild -runFirstLaunch`를 실행하고 `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`를 재시도한다. Android 내부 테스트용 appbundle은 이미 빌드 가능하다.
+Phase 7의 남은 blocker는 로컬 Xcode/CoreSimulator 환경이다. `mas outdated`가 Xcode `16.1 -> 26.5` 업데이트를 확인했지만 `mas upgrade 497799835`는 관리자 비밀번호가 필요해 Codex 단독으로 완료할 수 없다. Swift asset symbol generation을 끈 직접 `xcodebuild` 우회도 `CompileAssetCatalog`의 동일한 `AssetCatalogSimulatorAgent` 실패로 막혔다. 사용자가 App Store 또는 인증 가능한 터미널에서 Xcode 26.5 업데이트를 완료한 뒤 `xcodebuild -runFirstLaunch`를 실행하고 `flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro`를 재시도한다. Android 내부 테스트용 appbundle은 이미 빌드 가능하다.
 
 ## Decisions
 
