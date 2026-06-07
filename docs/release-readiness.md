@@ -23,7 +23,7 @@ flutter analyze
 flutter test
 flutter build apk --debug
 flutter build appbundle --release --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=<store-product-id>
-flutter build ipa --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=<store-product-id>
+flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=<store-product-id>
 ```
 
 ## 내부 테스트 준비 메모
@@ -31,15 +31,32 @@ flutter build ipa --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUC
 - Google Play 내부 테스트 전 `COUPON_KEEPER_PRO_PRODUCT_ID`를 Play Console의 non-consumable 상품 ID와 맞춘다.
 - App Store Connect 내부 테스트 전 같은 dart-define을 App Store Connect의 product ID와 맞춘다.
 - 실제 구매/복원 승인은 각 스토어의 sandbox tester 또는 내부 tester 계정으로 확인한다.
-- 현재 로컬 Mac의 iOS 실행 검증은 아래 Xcode/CoreSimulator blocker가 해결된 뒤 재시도한다.
+- 현재 로컬 Mac에서 Android release appbundle과 iOS release no-codesign build가 모두 통과한다.
 
-## iOS 빌드 환경 blocker
+## iOS 빌드 환경 이력
 
 현재 환경:
 
 - macOS Tahoe 26.5
-- Xcode 16.1 (16B40)
+- Xcode 26.5 (17F42)
 - Flutter 3.44.0
+- iOS platform/runtime 26.5
+
+최종 검증:
+
+```bash
+flutter build ios --release --no-codesign --dart-define=COUPON_KEEPER_PRO_PRODUCT_ID=coupon_keeper_pro
+```
+
+결과:
+
+```text
+Built build/ios/iphoneos/Runner.app
+```
+
+참고: iOS production picker는 `PHPicker`와 `UTType`을 사용하므로 Runner deployment target은 iOS 14.0이다.
+
+이전 blocker:
 
 재현 명령:
 
@@ -103,7 +120,7 @@ sudo: a password is required
 
 `xcodes install 26.5`도 확인했지만 Apple ID/비밀번호가 필요해 자동 설치가 진행되지 않는다.
 
-따라서 남은 조치는 로컬 사용자 인증이 필요한 App Store Xcode 업데이트다.
+이 경로로 Xcode 26.5 업데이트가 완료됐다.
 
 추가 우회 검토:
 

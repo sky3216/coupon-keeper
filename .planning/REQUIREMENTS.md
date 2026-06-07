@@ -74,7 +74,7 @@
 - [x] **QUAL-04**: App uses 44px minimum touch targets, body text 16px or larger, 4.5:1 contrast, and non-color-only state indicators.
 - [x] **QUAL-05**: App provides screen reader labels for barcode, expiry, status, and primary actions.
 - [x] **QUAL-06**: App includes unit, widget, and integration tests for the core flows.
-- [ ] **QUAL-07**: App can be built for iOS App Store and Google Play internal testing.
+- [x] **QUAL-07**: App can be built for iOS App Store and Google Play internal testing.
 
 ## v2 Requirements
 
@@ -154,7 +154,7 @@
 | QUAL-04 | Phase 7 | Complete |
 | QUAL-05 | Phase 7 | Complete |
 | QUAL-06 | Phase 7 | Complete |
-| QUAL-07 | Phase 7 | Blocked: Android appbundle builds; iOS build blocked by local Xcode/CoreSimulator AssetCatalogSimulatorAgent failure |
+| QUAL-07 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 44 total
@@ -163,4 +163,4 @@
 
 ---
 *Requirements defined: 2026-05-21*
-*Last updated: 2026-06-06 after Phase 7 privacy/accessibility/release readiness slice*
+*Last updated: 2026-06-07 after Phase 7 iOS and Android release-readiness verification*

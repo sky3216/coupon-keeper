@@ -146,7 +146,7 @@ Cross-cutting constraints:
 
 **Goal:** Harden the MVP so it is private, accessible, test-covered, and ready for internal store distribution.
 **Mode:** mvp
-**Status:** In progress as of 2026-06-06; QUAL-01..06 complete, QUAL-07 iOS environment blocked.
+**Status:** MVP Light complete as of 2026-06-07.
 
 **Requirements:** QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05, QUAL-06, QUAL-07
 
@@ -158,9 +158,9 @@ Cross-cutting constraints:
 5. Unit, widget, and integration tests cover core flows.
 6. iOS and Android internal test builds can be produced with documented commands.
 
-**Known Blocker:**
+**Release Readiness Notes:**
 - Android `app-release.aab` builds successfully for internal testing.
-- iOS `flutter build ios --release --no-codesign` currently fails on this Mac because Xcode/CoreSimulator cannot launch `AssetCatalogSimulatorAgent`. This reproduces after CoreSimulator service restart and is tracked as an environment blocker, not app code.
+- iOS `flutter build ios --release --no-codesign` builds successfully after updating to Xcode 26.5, installing the iOS 26.5 platform/runtime, and aligning the app deployment target with iOS 14 APIs used by the production picker.
 
 ## Requirement Coverage
 
