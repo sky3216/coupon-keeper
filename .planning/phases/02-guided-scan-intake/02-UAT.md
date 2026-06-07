@@ -1,5 +1,5 @@
 ---
-status: pass
+status: passed
 phase: 2-guided-scan-intake
 source:
   - .planning/phases/02-guided-scan-intake/02-01-SUMMARY.md
@@ -7,7 +7,7 @@ source:
   - .planning/phases/02-guided-scan-intake/02-03-SUMMARY.md
   - .planning/phases/02-guided-scan-intake/02-SUMMARY.md
 started: 2026-05-26T13:38:16Z
-updated: 2026-05-28T13:33:35Z
+updated: 2026-06-07T22:21:30+09:00
 ---
 
 ## Current Test
@@ -71,7 +71,7 @@ skipped: 0
 blocked: 0
 resolved_gaps: 2
 
-## Gaps
+## Resolved Gaps
 
 - truth: "사용자가 source를 선택하면 진행 화면에 `선택한 항목을 확인하고 있어요`, `{processed}/{total} 처리 중`, `후보 확인 준비 중`, `취소`가 보입니다. 취소하면 `스캔을 멈췄어요`와 `다시 선택`, `Scan 처음으로`가 보여야 합니다."
   status: resolved-confirmed
