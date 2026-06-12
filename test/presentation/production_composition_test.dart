@@ -6,15 +6,17 @@ import 'package:coupon_keeper/data/in_memory_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/data/sqlite_pass_repository.dart';
 import 'package:coupon_keeper/data/sqlite_scan_fingerprint_cache.dart';
 import 'package:coupon_keeper/platform/fake_scan_source_picker.dart';
+import 'package:coupon_keeper/platform/iap_pro_purchase_gateway.dart';
 import 'package:coupon_keeper/platform/local_image_copy_store.dart';
 import 'package:coupon_keeper/platform/method_channel_ocr_text_recognizer.dart';
-import 'package:coupon_keeper/platform/method_channel_pro_purchase_gateway.dart';
 import 'package:coupon_keeper/platform/method_channel_reminder_scheduler.dart';
 import 'package:coupon_keeper/platform/method_channel_scan_source_picker.dart';
 import 'package:coupon_keeper/presentation/app/coupon_keeper_app.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('production dependencies use real local adapters', () async {
     final dependencies = await CouponKeeperDependencies.production(
       now: () => DateTime(2026, 6, 3),
@@ -34,10 +36,7 @@ void main() {
       dependencies.reminderScheduler,
       isA<MethodChannelReminderScheduler>(),
     );
-    expect(
-      dependencies.proPurchaseGateway,
-      isA<MethodChannelProPurchaseGateway>(),
-    );
+    expect(dependencies.proPurchaseGateway, isA<IapProPurchaseGateway>());
   });
 
   test('widget tests can still inject deterministic fake controllers', () {

@@ -11,6 +11,7 @@ import '../widgets/candidate_review_form.dart';
 import '../widgets/discovery_report.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/manual_registration_form.dart';
+import '../widgets/pro_gate_sheet.dart';
 import '../widgets/scan_progress_summary.dart';
 import '../widgets/scan_source_choice.dart';
 
@@ -260,11 +261,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 });
               }
             } on ProGateException catch (error) {
-              if (mounted) {
-                setState(() {
-                  _saveError = error.message;
-                });
-              }
+              await _handleProGate(error);
             } catch (_) {
               if (mounted) {
                 setState(() {
@@ -316,11 +313,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     });
                   }
                 } on ProGateException catch (error) {
-                  if (mounted) {
-                    setState(() {
-                      _saveError = error.message;
-                    });
-                  }
+                  await _handleProGate(error);
                 } catch (_) {
                   if (mounted) {
                     setState(() {
@@ -349,6 +342,26 @@ class _ScanScreenState extends State<ScanScreen> {
     _saveError = null;
     _showRetainedDiscovery = false;
     _controller.reset();
+  }
+
+  Future<void> _handleProGate(ProGateException error) async {
+    final controller = _discoveryController?.proEntitlementController;
+    if (controller == null) {
+      if (mounted) {
+        setState(() => _saveError = error.message);
+      }
+      return;
+    }
+    final unlocked = await showProGateSheet(
+      context: context,
+      controller: controller,
+      gate: error,
+    );
+    if (mounted) {
+      setState(() {
+        _saveError = unlocked ? null : error.message;
+      });
+    }
   }
 }
 

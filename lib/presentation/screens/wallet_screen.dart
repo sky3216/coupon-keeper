@@ -12,6 +12,7 @@ import '../../platform/source_cleanup_launcher.dart';
 import '../theme/app_theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pass_row.dart';
+import '../widgets/pro_gate_sheet.dart';
 import '../widgets/status_chip.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -184,16 +185,36 @@ class _WalletScreenState extends State<WalletScreen> {
             }
           },
           onMarkCleanupCandidate: () async {
-            final WalletState nextState;
+            WalletState nextState;
             try {
               nextState = await controller.markCleanupCandidate(pass);
             } on ProGateException catch (error) {
-              if (mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(error.message)));
+              final proController = controller.proEntitlementController;
+              if (proController != null) {
+                if (!mounted) {
+                  return;
+                }
+                final unlocked = await showProGateSheet(
+                  context: context,
+                  controller: proController,
+                  gate: error,
+                );
+                if (!mounted) {
+                  return;
+                }
+                if (unlocked) {
+                  nextState = await controller.markCleanupCandidate(pass);
+                } else {
+                  return;
+                }
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(error.message)));
+                }
+                return;
               }
-              return;
             }
             if (mounted) {
               setState(() {
