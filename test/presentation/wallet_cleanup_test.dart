@@ -68,6 +68,32 @@ void main() {
     expect(find.text('원본 파일 확인 필요'), findsOneWidget);
     expect(find.text('앱 내부 사본으로 계속 사용할 수 있어요'), findsOneWidget);
   });
+
+  testWidgets('detail exposes expiry, barcode, status, and action semantics', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final repository = InMemoryPassRepository();
+    await repository.save(_pass(id: 'a11y-1', title: '접근성 쿠폰'));
+
+    await tester.pumpWidget(_app(repository));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('접근성 쿠폰'));
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel('만료일, 2026.07.31'), findsOneWidget);
+    expect(find.bySemanticsLabel('예상 금액, 3000원'), findsOneWidget);
+    expect(find.bySemanticsLabel('접근성 쿠폰 바코드 영역, 확대해서 보기 가능'), findsOneWidget);
+    expect(find.bySemanticsLabel('이 쿠폰 사용 완료로 표시'), findsOneWidget);
+
+    await tester.ensureVisible(find.byIcon(Icons.open_in_full));
+    await tester.tap(find.byIcon(Icons.open_in_full));
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel('접근성 쿠폰 바코드 확대 화면'), findsOneWidget);
+    semantics.dispose();
+  });
 }
 
 Widget _app(

@@ -268,9 +268,13 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: FilledButton(
-            onPressed: isUsed || _isSaving ? null : _markUsed,
-            child: Text(isUsed ? '사용 완료됨' : '이 쿠폰 사용 완료'),
+          child: Semantics(
+            label: isUsed ? '이미 사용 완료된 쿠폰' : '이 쿠폰 사용 완료로 표시',
+            button: true,
+            child: FilledButton(
+              onPressed: isUsed || _isSaving ? null : _markUsed,
+              child: Text(isUsed ? '사용 완료됨' : '이 쿠폰 사용 완료'),
+            ),
           ),
         ),
       ),
@@ -327,9 +331,13 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
               const Row(children: [StatusChip(kind: StatusChipKind.used)]),
               if (!isCleanupCandidate) ...[
                 const SizedBox(height: 8),
-                TextButton(
-                  onPressed: _isSaving ? null : _markCleanupCandidate,
-                  child: const Text('정리 후보로 표시'),
+                Semantics(
+                  label: '원본 정리 후보로 표시',
+                  button: true,
+                  child: TextButton(
+                    onPressed: _isSaving ? null : _markCleanupCandidate,
+                    child: const Text('정리 후보로 표시'),
+                  ),
                 ),
               ],
             ],
@@ -339,9 +347,13 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
                 children: [StatusChip(kind: StatusChipKind.cleanupCandidate)],
               ),
               const SizedBox(height: 8),
-              TextButton(
-                onPressed: _showSourceCleanupHandoff,
-                child: const Text('원본 정리 안내'),
+              Semantics(
+                label: '원본 정리 안내 열기',
+                button: true,
+                child: TextButton(
+                  onPressed: _showSourceCleanupHandoff,
+                  child: const Text('원본 정리 안내'),
+                ),
               ),
             ],
           ],
@@ -411,10 +423,14 @@ class _PassDetailScreenState extends State<PassDetailScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),
-                FilledButton.tonalIcon(
-                  onPressed: () => _openOriginalSource(context),
-                  icon: const Icon(Icons.open_in_new),
-                  label: const Text('원본 앱 열기'),
+                Semantics(
+                  label: '원본 앱 또는 파일 화면 열기',
+                  button: true,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => _openOriginalSource(context),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('원본 앱 열기'),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 FilledButton(
@@ -622,11 +638,16 @@ class _ImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Icon(
-        sourceMissing ? Icons.image_not_supported_outlined : Icons.image,
-        size: 56,
-        color: AppTheme.accent,
+    return Semantics(
+      label: sourceMissing ? '쿠폰 이미지 원본 없음' : '쿠폰 이미지 없음',
+      child: ExcludeSemantics(
+        child: Center(
+          child: Icon(
+            sourceMissing ? Icons.image_not_supported_outlined : Icons.image,
+            size: 56,
+            color: AppTheme.accent,
+          ),
+        ),
       ),
     );
   }
@@ -668,14 +689,18 @@ class _BarcodePanel extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Semantics(
-              label: '$title 바코드 영역',
+              label: '$title 바코드 영역, 확대해서 보기 가능',
               child: Container(
                 height: 72,
                 decoration: BoxDecoration(
                   color: AppTheme.neutralChip,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Center(child: Icon(Icons.qr_code_2, size: 40)),
+                child: const Center(
+                  child: ExcludeSemantics(
+                    child: Icon(Icons.qr_code_2, size: 40),
+                  ),
+                ),
               ),
             ),
           ],
@@ -747,28 +772,34 @@ class _ExpandedBarcodeScreen extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.qr_code_2,
-                      size: 180,
-                      color: Theme.of(context).colorScheme.onSurface,
+            child: Semantics(
+              container: true,
+              label: '${pass.title} 바코드 확대 화면',
+              child: ExcludeSemantics(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.qr_code_2,
+                          size: 180,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          pass.title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      pass.title,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -787,18 +818,29 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 88,
-            child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
+    return Semantics(
+      label: '$label, $value',
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 88,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  value,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Text(value, style: Theme.of(context).textTheme.titleMedium),
-          ),
-        ],
+        ),
       ),
     );
   }
